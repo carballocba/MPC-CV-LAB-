@@ -1,0 +1,4 @@
+/build/
+# Preserve the downloaded upstream snapshot locally; do not redistribute its artwork/tools.
+/research/glass-spheres-source/
+.DS_Store
