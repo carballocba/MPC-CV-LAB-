@@ -1,0 +1,21 @@
+{
+  "file": "build/armv7/mpc_cv.so",
+  "sha256": "92b564349e178a9d4fbf884c0f8c2cb6854e8f1afdd95a002eac2d21e97db813",
+  "class": "ELF32",
+  "machine": "ARM",
+  "eabi": 5,
+  "hard_float": true,
+  "needed": [
+    "libm.so.6",
+    "libpthread.so.0",
+    "libc.so.6",
+    "libdl.so.2",
+    "ld-linux-armhf.so.3"
+  ],
+  "symbol_versions": [
+    "GLIBC_2.16",
+    "GLIBC_2.4"
+  ],
+  "entry_exported": true,
+  "telemetry_exported": true
+}

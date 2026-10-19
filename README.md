@@ -1,28 +1,70 @@
-# MPC-CV — Phase 0
+# MPC-CV LAB
 
-Independent local research and offline C++17 prototype for an eight-output modulation platform targeting MPC One / Hakai. **Physical output is not implemented. This is not an installable VST2 plugin.**
+Plataforma modular de modulación CV/Gate para **Akai MPC One con Hakai**, desarrollada en C++17. El objetivo es controlar ocho señales desde un solo VST2, con motores virtuales, routing, escenas y controles de performance.
 
-Run:
+**Estado: laboratorio offline. El plugin genera silencio y valores CV simulados. No contiene backend físico, no está instalado y no se ha probado en MPC.**
+
+## Qué funciona
+
+- Phase 0 consolidada; investigación histórica y código original preservados.
+- Grafo de hasta 16 nodos virtuales, independiente de ocho salidas lógicas. Cuatro salidas habilitadas inicialmente en el VST; el simulador ampliado ejercita las ocho.
+- Sine/triangle LFO, gate, secuenciador de ocho pasos, random hold determinista, mezcla, slew y cuantización. Modulación de velocidad entre nodos; rechazo de ciclos y referencias inválidas.
+- Escala, offset, inversión/atenuación mediante escala y límites de 0–5 V por salida.
+- VST2 propio: identidad `McCv`, parámetros, transporte/start-stop, bucles, estado versionado y recuperación desarmada. Build nativo Mac y cross-build ARMv7 Linux hard-float.
+- Skin nativa MPC con OVERVIEW, ENGINES, ROUTING, DEVICES, SCENES y SETTINGS, mapas Q-Link y diagnóstico simulado. Generada y revisada offline; comportamiento táctil y Q-Links pendientes de hardware.
+- Backend abstracto, captura de mensajes, recuperación de escrituras parciales y modelo de apagado con ceros. Son modelos probados, no un worker físico en el VST.
+
+No se implementaron todas las familias futuras de motores. ADSR/AD/AR, Euclidean, chaos, clock divider dedicado, MIDI de entrada y scene morphing quedan pendientes. DEVICES y SCENES son páginas iniciales informativas, no navegadores completos.
+
+## Arquitectura
+
+`Host MPC → adaptador VST2 → grafo de señales virtuales → rutas y límites → valores simulados / telemetría`
+
+El simulador offline conecta además el grafo al servicio de captura de CC. El backend MPC Private y una cola de flancos gate con timestamps son trabajo futuro separado. No hay dependencia de módulos Eurorack concretos ni del DSP de Glass Spheres.
+
+Engine Preset configura un motor; Device Profile describe entradas de un módulo externo; Performance Scene conserva grafo, parámetros, rutas, máscara y metadatos de sincronización/control. La carga valida todo antes de aplicarlo y desarma la simulación. Cambiar parámetros puede reiniciar estados de slew; no se promete transición continua.
+
+## Compilar y probar
+
+Con clang++, make y Python 3, sin SDK VST comercial ni hardware:
 
 ```sh
-make test
-./build/simulate > build/demo.csv
+make check
 ```
 
-The core implements generic sine/triangle LFOs, transport gate, eight-step sequence, deterministic random hold, candidate 14-bit CC encoding, conflict-rejecting ownership model, bounded SPSC queue and partial-write cursor model. Four logical outputs start enabled; eight are supported. Every engine starts disarmed. Stop or invalid transport produces zero snapshots.
+Incluye tests del núcleo/grafo/backend, carga dinámica del VST, procesamiento con control de asignaciones de memoria, contratos UI/perfiles y simulación/captura de ocho salidas. En macOS `build/mpc_cv.so` es Mach-O arm64; el sufijo `.so` no lo convierte en un binario MPC.
 
-- [Source audit and compatibility findings](docs/RESEARCH.md)
-- [Architecture and production integration contract](docs/ARCHITECTURE.md)
-- [Test coverage and future acceptance gates](docs/VALIDATION.md)
-- `include/mpccv/core.hpp`: independently authored core
-- `src/simulate.cpp`: offline CSV demo
-- `tests/core_test.cpp`: executable tests
-- `research/`: isolated reference material with upstream licenses and pinned inventories; never part of the build
+```sh
+make -B check CXXFLAGS='-std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined'
+ZIG=/ruta/absoluta/a/zig-0.15.2/zig tools/build_armv7.sh
+```
 
-No repository was created remotely, no code published, no PR opened, no plugins installed and no MPC accessed or modified. The supplied prompt ended mid-sentence; this implementation covers the visible Phase 0 requirements without inventing missing requirements.
+El segundo comando produce `build/armv7/mpc_cv.so` y tests ARM sin ejecutarlos. Requiere Zig 0.15.2 verificado por separado. No instala herramientas ni copia archivos al dispositivo. Ver [build ARM y resultados](docs/VALIDATION.md) y [generación de skin](docs/UI.md).
 
-## Consolidation — 19 October 2026
+## Evidencia y límites
 
-Official repository: https://github.com/carballocba/MPC-CV-LAB-
+El usuario informa que Glass Spheres controla su Eurorack desde MPC One/Hakai. Esto apoya la viabilidad, pero **no valida MPC-CV**, sus ocho canales, voltajes, jitter ni shutdown. Akai documenta cuatro conectores TRS y ocho señales con breakout; el proyecto aún no midió el mapa tip/ring ni calibración.
 
-The original [research plan](docs/RESEARCH_PLAN.md) remains unchanged as historical evidence. The initiator now reports successful Glass Spheres CV control on MPC One/Hakai; that is practical user evidence, not validation of this project's backend. Phase 0 is preserved under `archive/phase0/`. Upstream source remains locally available under ignored `research/glass-spheres-source/`; inventories and MIT notices are tracked without redistributing upstream artwork or deployment scripts.
+El protocolo candidato usa canal MIDI 16 y pares CC 0/1 hasta 14/15, 14 bits y rango nominal unipolar 0–5 V. Las pruebas nativas y la compilación ARM no prueban que escribir al puerto compartido sea seguro. Tampoco garantizan precisión de afinación o tiempo real.
+
+## Documentación
+
+- [Estado de checkpoints, pruebas y bloqueos](docs/VALIDATION.md)
+- [Arquitectura actual](docs/ARCHITECTURE.md)
+- [Investigación y contraste de fuentes](docs/RESEARCH.md)
+- [Auditoría de tiempo real](docs/RT_AUDIT.md)
+- [GUI y Q-Links](docs/UI.md)
+- [Auditoría de licencias](docs/LICENSE_AUDIT.md)
+- [Preparación para una futura prueba física](docs/HARDWARE_READINESS.md)
+- [Plan histórico original, sin cambios](docs/RESEARCH_PLAN.md)
+- [Phase 0 original](archive/phase0/README.md)
+
+## Roadmap inmediato
+
+1. Ejecutar los tests y host VST en Linux ARM/QEMU con sysroot verificable.
+2. Completar serialización de presets/perfiles y UX de escenas, sin cambios bruscos de estado.
+3. Implementar y probar offline la cola de flancos, coordinator, watchdog y descubrimiento validado.
+4. Revisar licencias de runtime y empaquetado antes de distribuir binarios.
+5. Solicitar autorización separada para una prueba supervisada de una salida.
+
+Repositorio oficial: https://github.com/carballocba/MPC-CV-LAB-. No se modifica `main` ni se instala nada en la MPC desde este laboratorio.

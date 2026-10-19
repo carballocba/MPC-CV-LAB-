@@ -44,3 +44,13 @@ Framework `docs/MIDI_TIMING.md` reports Force / MPC OS 3.9.1 timing measurements
 ## Licensing and independence
 
 New implementation in `include/`, `src/`, `tests/` is independently written here; it has no dependency on either repository, Marbles, stmlib, ALSA or a VST SDK. Reference source is isolated under `research/glass-spheres-source`, is never built, and retains upstream notices. Both top-level MIT texts are preserved as `research/*-LICENSE.txt`. If substantial code is reused later, carry its copyright and full permission notice with it; vendored code has separate notices. Glass Spheres top-level LICENSE has a stale Clouds/Parasites footer; its actual Marbles/stmlib notices must also be retained. VST2 SDK/header redistribution rights require separate review before packaging; an upstream framework MIT license does not settle third-party SDK rights. No license is selected here for the user's newly authored project code.
+
+## Consolidation update — 19 October 2026
+
+The official repository main was inspected at `f5b90e90a2aad9f6df401f3db9c5faadcfe0a105`; it contained only README and `docs/RESEARCH_PLAN.md`. The plan is preserved byte-for-byte (SHA-256 `e44bfc008b5891bc5da76c59121a76a90eaf2186fe8cd3bf7dc742b0b13d85f6`). Its statement that direct CV had not been demonstrated is historical. The user now reports successful Glass Spheres control from MPC One/Hakai; no MPC-CV hardware result is inferred from it.
+
+The current Glass Spheres checkout remains `1fe3b0a17b14dc07d327e5408d7aaf438715ce44`. Framework HEAD is now `26e4581dee9ed128a5b34e306134f1fc97b7ff0e`; its wrapper/engine interface has no diff against the Phase 0 pinned framework for the reviewed ABI files. The new project adapts only the minimal MIT ABI declarations and uses the framework as a separately supplied native-skin build tool, not as its DSP/plugin runtime.
+
+A local scan of both reviewed reference repositories found no `McCv` identifier. GitHub code search for McCv/uniqueID returned broad unrelated matches (487), so it cannot establish global uniqueness. `McCv` / `0x4d634376` is a project-specific provisional choice, distinct from Glass Spheres' `PbMb`; a release-time registry/catalog review remains necessary. No identifiers from other user projects were read or reused.
+
+The full upstream snapshot is retained ignored locally, not redistributed by the consolidation PR. The original Phase 0 reports/code are preserved under `archive/phase0/`; current architecture and validation reports supersede their implementation status. New-file and binary license status is recorded separately in `LICENSE_AUDIT.md`.
