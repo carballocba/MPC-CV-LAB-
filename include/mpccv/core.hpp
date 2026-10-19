@@ -20,20 +20,20 @@ inline std::array<uint8_t, 6> encode(unsigned output, uint16_t value) noexcept {
 }
 struct Frame { uint64_t sample = 0; std::array<uint16_t, outputs> values{}; };
 // One producer, one consumer only. Capacity is N-1. No OS calls in either operation.
-template<size_t N> class Queue {
+template<size_t N, class T=Frame> class Queue {
     static_assert(N > 1, "queue too small");
     static_assert(std::atomic<uint32_t>::is_always_lock_free, "requires lock-free 32-bit atomics");
-    std::array<Frame, N> data{};
+    std::array<T, N> data{};
     alignas(64) std::atomic<uint32_t> head{0};
     alignas(64) std::atomic<uint32_t> tail{0};
 public:
-    bool push(const Frame& f) noexcept {
+    bool push(const T& f) noexcept {
         auto h = head.load(std::memory_order_relaxed);
         auto next = (h + 1) % N;
         if (next == tail.load(std::memory_order_acquire)) return false;
         data[h] = f; head.store(next, std::memory_order_release); return true;
     }
-    bool pop(Frame& f) noexcept {
+    bool pop(T& f) noexcept {
         auto t = tail.load(std::memory_order_relaxed);
         if (t == head.load(std::memory_order_acquire)) return false;
         f = data[t]; tail.store((t + 1) % N, std::memory_order_release); return true;
