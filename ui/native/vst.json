@@ -1,0 +1,9 @@
+{
+  "name": "MPC-CV LAB",
+  "vendor": "carballocba",
+  "uid": "McCv",
+  "version": 100,
+  "so": "mpc_cv.so",
+  "params": "params.json",
+  "layout": "layout.conf"
+}

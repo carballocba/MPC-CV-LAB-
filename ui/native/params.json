@@ -1,0 +1,521 @@
+{
+  "name": "MPC-CV LAB",
+  "params": [
+    {
+      "key": "sim_arm",
+      "name": "Simulation arm",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "output_mask",
+      "name": "Output bitmask 0-255",
+      "min": 0,
+      "max": 1,
+      "default": 0.058823529411764705
+    },
+    {
+      "key": "n1_rate",
+      "name": "Node 1 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n1_scale",
+      "name": "Node 1 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.65625
+    },
+    {
+      "key": "n1_type",
+      "name": "Node 1 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 1
+    },
+    {
+      "key": "n2_rate",
+      "name": "Node 2 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n2_scale",
+      "name": "Node 2 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.65625
+    },
+    {
+      "key": "n2_type",
+      "name": "Node 2 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 2
+    },
+    {
+      "key": "n3_rate",
+      "name": "Node 3 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.06248535133361459
+    },
+    {
+      "key": "n3_scale",
+      "name": "Node 3 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.65625
+    },
+    {
+      "key": "n3_type",
+      "name": "Node 3 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 3
+    },
+    {
+      "key": "n4_rate",
+      "name": "Node 4 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n4_scale",
+      "name": "Node 4 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.65625
+    },
+    {
+      "key": "n4_type",
+      "name": "Node 4 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 5
+    },
+    {
+      "key": "n5_rate",
+      "name": "Node 5 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n5_scale",
+      "name": "Node 5 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.53125
+    },
+    {
+      "key": "n5_type",
+      "name": "Node 5 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 4
+    },
+    {
+      "key": "n6_rate",
+      "name": "Node 6 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n6_scale",
+      "name": "Node 6 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.53125
+    },
+    {
+      "key": "n6_type",
+      "name": "Node 6 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 7
+    },
+    {
+      "key": "n7_rate",
+      "name": "Node 7 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n7_scale",
+      "name": "Node 7 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.65625
+    },
+    {
+      "key": "n7_type",
+      "name": "Node 7 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 1
+    },
+    {
+      "key": "n8_rate",
+      "name": "Node 8 rate",
+      "min": 0,
+      "max": 1,
+      "default": 0.015609618900295316
+    },
+    {
+      "key": "n8_scale",
+      "name": "Node 8 scale",
+      "min": 0,
+      "max": 1,
+      "default": 0.65625
+    },
+    {
+      "key": "n8_type",
+      "name": "Node 8 type",
+      "options": [
+        "Off",
+        "Sine",
+        "Triangle",
+        "Gate",
+        "Sequence",
+        "Random hold",
+        "Mix",
+        "Slew",
+        "Quantizer"
+      ],
+      "default": 2
+    },
+    {
+      "key": "cv1",
+      "name": "CV 1 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv2",
+      "name": "CV 2 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv3",
+      "name": "CV 3 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv4",
+      "name": "CV 4 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv5",
+      "name": "CV 5 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv6",
+      "name": "CV 6 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv7",
+      "name": "CV 7 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "cv8",
+      "name": "CV 8 simulated volts",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "playing",
+      "name": "Transport playing",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "fault",
+      "name": "Backend fault",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "route1",
+      "name": "Output 1 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 1
+    },
+    {
+      "key": "route2",
+      "name": "Output 2 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 2
+    },
+    {
+      "key": "route3",
+      "name": "Output 3 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 3
+    },
+    {
+      "key": "route4",
+      "name": "Output 4 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 4
+    },
+    {
+      "key": "route5",
+      "name": "Output 5 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 5
+    },
+    {
+      "key": "route6",
+      "name": "Output 6 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 6
+    },
+    {
+      "key": "route7",
+      "name": "Output 7 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 7
+    },
+    {
+      "key": "route8",
+      "name": "Output 8 source",
+      "options": [
+        "Off",
+        "Node 1",
+        "Node 2",
+        "Node 3",
+        "Node 4",
+        "Node 5",
+        "Node 6",
+        "Node 7",
+        "Node 8",
+        "Node 9",
+        "Node 10",
+        "Node 11",
+        "Node 12",
+        "Node 13",
+        "Node 14",
+        "Node 15",
+        "Node 16"
+      ],
+      "default": 8
+    }
+  ]
+}

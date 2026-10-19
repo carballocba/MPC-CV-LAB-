@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#error Tests require assertions; compile with -UNDEBUG
+#endif
 #include "mpccv/backend.hpp"
 #include <cassert>
 using namespace mpccv;

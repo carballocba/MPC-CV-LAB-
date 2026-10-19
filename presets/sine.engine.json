@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "kind": "engine_preset",
+  "name": "Slow unipolar sine",
+  "engine": {"type": "sine", "cycles_per_beat": 0.25, "scale": 5.0, "offset_volts": 0.0}
+}

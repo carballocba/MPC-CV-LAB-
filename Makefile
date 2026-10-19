@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
-.PHONY: all test clean
+.PHONY: all test clean vst rt check assets lab
 all: build/simulate build/core_test build/backend_test build/graph_test
 build:
 	mkdir -p build
@@ -35,3 +35,18 @@ build/vst_host_test: tests/vst_host_test.cpp $(HEADERS) | build
 	$(CXX) $(CXXFLAGS) $< $(DL_LIB) -o $@
 vst: build/mpc_cv.so build/vst_host_test
 	./build/vst_host_test ./build/mpc_cv.so
+
+build/rt_test: tests/rt_test.cpp src/vst/plugin.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) tests/rt_test.cpp src/vst/plugin.cpp -o $@
+rt: build/rt_test
+	./build/rt_test
+check: test vst rt
+
+build/lab_simulate: src/lab_simulate.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $< -o $@
+assets:
+	python3 tools/validate_assets.py
+lab: build/lab_simulate
+	./build/lab_simulate build/eight-outputs.csv build/capture.bin
+	python3 tools/validate_capture.py
+check: assets lab

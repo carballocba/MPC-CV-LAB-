@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#error Tests require assertions; compile with -UNDEBUG
+#endif
 #include "mpccv/core.hpp"
 #include <cassert>
 #include <limits>
@@ -5,6 +8,8 @@
 #include <vector>
 int main() {
     using namespace mpccv;
+    assert(code(4.99999)==16383);
+    for(unsigned i=0;i<=100000;++i)assert(code(double(i)/20000)<=16383);
     assert(code(-1)==0 && code(5)==16383 && code(2)==6554);
     assert(code(std::numeric_limits<double>::quiet_NaN())==0);
     assert(code(std::numeric_limits<double>::infinity())==0);

@@ -29,7 +29,7 @@ struct Time {
     int32_t timeSigNumerator,timeSigDenominator,smpteOffset,smpteFrameRate,samplesToNextClock,flags;
 };
 constexpr int32_t magic=0x56737450, identity=0x4d634376; // VstP, McCv
-constexpr unsigned parameter_count=26;
+constexpr unsigned parameter_count=44;
 static_assert(sizeof(Time)==88,"VST time ABI mismatch");
 static_assert(sizeof(Effect)==(sizeof(void*)==8?192:144),"VST effect ABI mismatch");
 struct Telemetry { uint32_t codes[8],playing,armed,fault,gate_rises[8]; };

@@ -11,7 +11,7 @@ constexpr unsigned outputs = 8;
 inline uint16_t code(double volts) noexcept {
     if (!std::isfinite(volts) || volts <= 0) return 0;
     if (volts >= 5) return 16383;
-    return static_cast<uint16_t>(std::floor(volts * 3276.8 + 0.5));
+    return static_cast<uint16_t>(std::fmin(16383.0, std::floor(volts * 3276.8 + 0.5)));
 }
 inline std::array<uint8_t, 6> encode(unsigned output, uint16_t value) noexcept {
     if (output >= outputs || value > 16383) return {};

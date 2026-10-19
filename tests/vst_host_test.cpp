@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#error Tests require assertions; compile with -UNDEBUG
+#endif
 #include "mpccv/vst/abi.hpp"
 #include "mpccv/scene.hpp"
 #include <cassert>
@@ -17,8 +20,10 @@ int main(int argc,char** argv) {
     auto entry=reinterpret_cast<Effect*(*)(Callback)>(dlsym(lib,"VSTPluginMain"));assert(entry);
     auto telemetry=reinterpret_cast<int(*)(Effect*,Telemetry*)>(dlsym(lib,"mpc_cv_read_telemetry"));assert(telemetry);
     assert(!entry(nullptr));auto* e=entry(host);auto* other=entry(host);assert(e&&other);
-    assert(e->magic==magic&&e->uniqueID==identity&&e->numParams==26&&e->numOutputs==2);
+    assert(e->magic==magic&&e->uniqueID==identity&&e->numParams==44&&e->numOutputs==2);
     assert(e->dispatcher(e,0,0,0,nullptr,0));
+    char display[8]{};assert(e->dispatcher(e,7,4,0,display,0));assert(std::strcmp(display,"Sine")==0);
+    assert(e->dispatcher(e,7,36,0,display,0));assert(std::strcmp(display,"Node 1")==0);
     e->dispatcher(e,10,0,0,nullptr,44100);e->dispatcher(e,11,0,128,nullptr,0);e->dispatcher(e,12,0,1,nullptr,0);
     clock_info.ppqPos=0.25;clock_info.tempo=120;clock_info.flags=2|(1<<9)|(1<<10);
     float left[128],right[128];float* out[]{left,right};
@@ -36,6 +41,16 @@ int main(int argc,char** argv) {
     assert(e->dispatcher(e,24,0,n,saved.data(),0));assert(e->getParameter(e,0)==0);
     e->processReplacing(e,nullptr,out,128);assert(e->getParameter(e,2)<0.1f);
     saved[15]^=1;assert(!e->dispatcher(e,24,0,n,saved.data(),0));
+    // Loop boundary straddles this block; evaluate the wrapped PPQ inside it.
+    clock_info.flags=2|4|(1<<9)|(1<<10)|(1<<12);
+    clock_info.ppqPos=0.999;clock_info.cycleStartPos=0;clock_info.cycleEndPos=1;
+    e->setParameter(e,0,1);e->processReplacing(e,nullptr,out,128);
+    telemetry(e,&t);assert(t.codes[2]==16383 && !t.fault);
+    e->setParameter(e,36,3.0f/16);e->processReplacing(e,nullptr,out,128);
+    telemetry(e,&t);assert(t.codes[0]==t.codes[2]);
+    assert(e->getParameter(e,26)==float(t.codes[0])/16383);
+    e->setParameter(e,26,0);assert(e->getParameter(e,26)>0); // read-only output meter
+    clock_info.flags=2|(1<<9)|(1<<10);clock_info.ppqPos=0.25;
     // Host automation may arrive concurrently; atomic parameters avoid an audio lock.
     std::thread automation([&]{for(int i=0;i<10000;++i)e->setParameter(e,2,float(i%100)/100);});
     for(int i=0;i<500;++i)e->processReplacing(e,nullptr,out,128);automation.join();

@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#error Tests require assertions; compile with -UNDEBUG
+#endif
 #include "mpccv/scene.hpp"
 #include <cassert>
 #include <limits>
@@ -27,6 +30,10 @@ int main() {
     for(unsigned i=0;i<44100;++i){t.ppq=double(i)*2/44100;bool high=g.sample(t,i).values[0]!=0;
         rises+=high&&!previous;falls+=!high&&previous;previous=high;}
     assert(rises==128 && falls==128);
+    s=demo_scene();EnginePreset preset;preset.node.kind=Kind::triangle;
+    assert(apply_preset(s,0,preset));assert(s.nodes[0].kind==Kind::triangle);
+    preset.node.input=0;assert(!apply_preset(s,0,preset));assert(s.nodes[0].kind==Kind::triangle);
+    assert(!apply_preset(s,16,preset));
     s=demo_scene();s.routes[0].source=4;assert(g.configure(s)==GraphError::none);assert(!g.armed);
     g.armed=true;t.ppq=2;assert(g.sample(t,0).values[0]==code(2));
     s.routes[0].source=2;assert(g.configure(s)==GraphError::none);g.armed=true;

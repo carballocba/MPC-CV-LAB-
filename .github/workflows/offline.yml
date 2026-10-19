@@ -1,0 +1,16 @@
+name: Offline validation
+on:
+  pull_request:
+  push:
+    branches: [development/phase-0-consolidation]
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Native core, VST host, RT allocation guard and eight-output capture
+        run: make check
+      - name: ASan and UBSan
+        run: make -B check CXXFLAGS='-std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined'

@@ -30,6 +30,7 @@ struct Plan { Scene scene{}; std::array<uint8_t,max_nodes> order{}; };
 inline GraphError compile(const Scene& s,Plan& result) noexcept {
     if(s.version!=1) return GraphError::version;
     if(s.count>max_nodes) return GraphError::count;
+    if(!s.sync) return GraphError::parameter; // free-running clock not implemented
     auto bounded=[](double v,double lo,double hi){return std::isfinite(v)&&v>=lo&&v<=hi;};
     for(unsigned i=0;i<s.count;++i) {
         const auto& n=s.nodes[i];
@@ -58,6 +59,13 @@ inline GraphError compile(const Scene& s,Plan& result) noexcept {
         if(!found) return GraphError::cycle;
     }
     result=candidate; return GraphError::none;
+}
+struct EnginePreset { uint32_t version=1; Node node{}; };
+inline bool apply_preset(Scene& scene,unsigned index,const EnginePreset& preset) noexcept {
+    if(preset.version!=1 || index>=scene.count)return false;
+    auto candidate=scene; candidate.nodes[index]=preset.node;
+    Plan p;if(compile(candidate,p)!=GraphError::none)return false;
+    scene=candidate;return true;
 }
 inline Scene demo_scene() noexcept {
     Scene s; s.count=6; s.enabled=255; s.controls={{0,1,2,3}};
@@ -90,7 +98,7 @@ public:
             double rate=std::fmax(0.001,std::fmin(64,n.rate+mod*n.amount));
             double pos=t.ppq*rate, phase=pos-std::floor(pos), v=0;
             switch(n.kind) {
-            case Kind::off: break;
+            case Kind::off: signal[i]=0; continue;
             case Kind::sine: v=0.5-0.5*std::cos(6.283185307179586*phase); break;
             case Kind::triangle: v=1-std::abs(phase*2-1); break;
             case Kind::gate: v=phase<0.5?1:0; break;
