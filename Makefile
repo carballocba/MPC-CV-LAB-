@@ -19,3 +19,19 @@ test: all
 	./build/simulate > build/demo.csv
 clean:
 	rm -rf build
+
+HEADERS = $(wildcard include/mpccv/*.hpp) include/mpccv/vst/abi.hpp
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+SHARED = -dynamiclib
+DL_LIB =
+else
+SHARED = -shared -fPIC
+DL_LIB = -ldl
+endif
+build/mpc_cv.so: src/vst/plugin.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $(SHARED) $< -o $@
+build/vst_host_test: tests/vst_host_test.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $< $(DL_LIB) -o $@
+vst: build/mpc_cv.so build/vst_host_test
+	./build/vst_host_test ./build/mpc_cv.so
