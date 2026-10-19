@@ -103,6 +103,7 @@ public:
 };
 // Offline writer contract: short writes retain the exact remaining byte stream.
 // Return 0 for temporary backpressure, -1 for a fatal transport error.
+// Legacy Phase 0 helper, retained for API history; use ReliablePacket for new code.
 class Packet {
     std::array<uint8_t, 48> bytes{};
     size_t cursor=48;
