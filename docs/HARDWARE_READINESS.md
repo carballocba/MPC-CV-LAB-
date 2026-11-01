@@ -5,9 +5,9 @@ Physical backend is absent. There is no installation script, rawmidi opener/writ
 ## Entry criteria for a later single-output trial
 
 1. Record exact MPC One model, Hakai/MPC version, host ABI and controller identity. User-reported Glass Spheres operation establishes practical feasibility only; it does not validate MPC-CV.
-2. Resolve runtime dependency availability, execute ARM tests, validate plugin loading and native skin/Q-Link behavior with outputs still disabled. Preserve the project and existing settings before any supervised installation.
+2. Resolve runtime dependency availability, retain the passing GNU/Zig QEMU tests, then separately validate Akai plugin loading and native skin/Q-Link behavior with outputs still disabled. Preserve the project and existing settings before any supervised installation.
 3. Implement/audit discovery and stream coordination first: exact output-substream identity, ambiguous-port rejection, fd close/reuse validation, no status-flag changes on borrowed descriptors, no assumptions about host SysEx interleaving.
-4. Implement the ordered gate edge pipeline, overflow disarm, worker timeout, explicit output reservation, bounded shutdown and reconnect safe handshake. Prove all fault paths offline before enabling transport.
+4. Integrate the separately tested EventPipeline (ordered edges, overflow fault, heartbeat and bounded write/shutdown model) with a real coordinator, explicit reservations and reconnect safe handshake. Prove all fault paths offline before enabling transport.
 5. Select one logical output and establish connector/tip/ring mapping from official documentation plus measurement. Do not infer physical wiring from adjacent CC numbers. Exclude native CV tracks and other plugin writers on the reserved output.
 6. With Eurorack disconnected, use a meter/scope and begin at zero. Test conservative fixed voltages and measure actual range before pitch or gates. Validate slew and clamp. Stop immediately on unexpected output, stalled shutdown, wrong channel or ambiguity.
 7. Only after measuring correct behavior connect an external input whose official range is known. Keep all other outputs disabled. Record scope timing and firmware-specific results; do not extrapolate to eight lanes.
