@@ -28,3 +28,7 @@ jobs:
         run: make -B check
       - name: ARMv7 Linux execution including dynamic VST host
         run: python3 tools/run_armv7_qemu.py
+      - name: Build ARMv7 glibc 2.31 baseline with SHA-256-pinned Zig
+        run: ZIG="$(python3 tools/fetch_zig.py)" tools/build_armv7.sh
+      - name: Execute Zig-built ARM tests and dynamic VST under QEMU
+        run: python3 tools/run_armv7_qemu.py --existing-dir build/armv7
