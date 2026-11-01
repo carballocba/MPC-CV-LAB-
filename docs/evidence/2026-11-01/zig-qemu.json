@@ -1,0 +1,48 @@
+{
+  "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+  "compiler": "Zig 0.15.2",
+  "qemu": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+  "sysroot": "/usr/arm-linux-gnueabihf",
+  "cpu": "cortex-a9",
+  "tests": [
+    {
+      "test": "core_test",
+      "result": "PASS",
+      "seconds": 0.115
+    },
+    {
+      "test": "backend_test",
+      "result": "PASS",
+      "seconds": 0.032
+    },
+    {
+      "test": "graph_test",
+      "result": "PASS",
+      "seconds": 0.365
+    },
+    {
+      "test": "event_pipeline_test",
+      "result": "PASS",
+      "seconds": 0.065
+    },
+    {
+      "test": "vst_host_test",
+      "result": "PASS",
+      "seconds": 0.616
+    },
+    {
+      "test": "rt_test",
+      "result": "PASS",
+      "seconds": 5.927
+    },
+    {
+      "test": "scene_io_test",
+      "result": "PASS",
+      "seconds": 0.115
+    }
+  ],
+  "plugin_sha256": "261acf398ef1cfced1b40f63b39608d5ac6c5e8ee030b210da89097cd04aac58",
+  "limits": "QEMU user-mode and Ubuntu cross sysroot only; no Hakai, MPC, electrical or real-time deadline validation",
+  "ci_run": "https://github.com/carballocba/MPC-CV-LAB-/actions/runs/41294390285",
+  "code_commit": "d4fd855237a669cf3f5df01f01736c3551d58d92"
+}

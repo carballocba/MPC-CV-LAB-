@@ -1,0 +1,20 @@
+mkdir -p build
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread src/simulate.cpp -o build/simulate
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread tests/core_test.cpp -o build/core_test
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread tests/backend_test.cpp -o build/backend_test
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread tests/graph_test.cpp -o build/graph_test
+./build/core_test
+./build/backend_test
+./build/graph_test
+./build/simulate > build/demo.csv
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -dynamiclib src/vst/plugin.cpp -o build/mpc_cv.so
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread tests/vst_host_test.cpp  -o build/vst_host_test
+./build/vst_host_test ./build/mpc_cv.so
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread tests/rt_test.cpp src/vst/plugin.cpp -o build/rt_test
+./build/rt_test
+python3 tools/validate_assets.py
+PASS: generic profile, preset fixture, 44 parameters, six pages and Q-Link bindings
+clang++ -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread src/lab_simulate.cpp -o build/lab_simulate
+./build/lab_simulate build/eight-outputs.csv build/capture.bin
+python3 tools/validate_capture.py
+PASS: 1379 eight-output snapshots and final safe-zero packet; all CC bytes match CSV

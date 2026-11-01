@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "kind": "performance_scene",
+  "enabled_mask": 15,
+  "sync": true,
+  "controls": [0, 1, 2, 3],
+  "nodes": [
+    {"type": "sine", "cycles_per_beat": 0.25, "scale": 5},
+    {"type": "triangle", "cycles_per_beat": 0.5, "scale": 5},
+    {"type": "gate", "cycles_per_beat": 4, "scale": 5},
+    {"type": "random_hold", "cycles_per_beat": 1, "scale": 5, "seed": 42},
+    {"type": "sequence", "cycles_per_beat": 2},
+    {"type": "slew", "input": 4, "slew_volts_per_second": 8},
+    {"type": "mix", "input": 0, "modulator": 1, "modulation_amount": 0.25},
+    {"type": "quantizer", "input": 3, "quantum_volts": 0.08333333333333333}
+  ],
+  "routes": [
+    {"source": 0}, {"source": 1}, {"source": 2}, {"source": 3},
+    {"source": 4}, {"source": 5}, {"source": 6}, {"source": 7}
+  ]
+}

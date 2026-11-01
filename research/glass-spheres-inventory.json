@@ -1,0 +1,441 @@
+{
+  "repository": "https://github.com/padbangers/glass-spheres",
+  "commit": "1fe3b0a17b14dc07d327e5408d7aaf438715ce44",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 83,
+      "sha256": "4a0f74deadd50095b5f19590ab456175f2523aea5bd932fdb40828eff8d5d2ec"
+    },
+    {
+      "path": ".gitmodules",
+      "bytes": 127,
+      "sha256": "05c8e683c544242ecdc3f45a694cbcf3bd3b01cc3908a1d8ddb7a14621ce2951"
+    },
+    {
+      "path": "CLAUDE.md",
+      "bytes": 10472,
+      "sha256": "14cc99e5d5cd08ff909f0caafa4163b22072b29fca3fe2176f4af63859c0f77a"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1286,
+      "sha256": "f2b6f597d03412a20b91542b4547356f557befe2ac0330d08e6bb6cbfc271784"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4537,
+      "sha256": "7767425595c28950c0edc6bcb7942cd61a2c0ac28f09fbc18e5ee464ff18b36c"
+    },
+    {
+      "path": "build.sh",
+      "bytes": 1977,
+      "sha256": "109cf67adae8d5b3d01f96671bc25e49ffffb62460698d98fbd43cabdb7c149c"
+    },
+    {
+      "path": "cv/README.md",
+      "bytes": 3383,
+      "sha256": "cf05c4241157e416dca2e7f748a112aa26f99daf47ebfdffec3c6a5139f0043d"
+    },
+    {
+      "path": "cv/cv-capture-1.log",
+      "bytes": 99650,
+      "sha256": "d5ba1310e4d8764b9917ffa4f469fb423b291598cf4ef4fed64322042adc3bed"
+    },
+    {
+      "path": "cv/cvsniff.c",
+      "bytes": 9846,
+      "sha256": "81a27da907c8d67681fed42a0bc1c0abe2f37bb1933a80658ee3f2bc41bd0de5"
+    },
+    {
+      "path": "cv/sniff-try.sh",
+      "bytes": 1202,
+      "sha256": "09fa6e385a39cadeeb232c8d90aa76334583be3e12e391ce3d3ea99d724199d9"
+    },
+    {
+      "path": "deploy.sh",
+      "bytes": 3834,
+      "sha256": "712a15f95586e2d80e384878d464fc39e516b9519feb08d44f217f9951713e6e"
+    },
+    {
+      "path": "docs/glass-spheres-main.png",
+      "bytes": 150596,
+      "sha256": "e714f8a9f6155eb8f29298b4a01e971400183f6e780a35ea84708f4de7e565ab"
+    },
+    {
+      "path": "docs/glass-spheres-manual.png",
+      "bytes": 148280,
+      "sha256": "498fd27d1fbbacc72486cc4e2d5ab195ba43d9a5c02df3a28702d7c5c0ef8eef"
+    },
+    {
+      "path": "docs/glass-spheres-modulation.png",
+      "bytes": 171885,
+      "sha256": "7e7fa18493d46c9e40e120561e7e7e065fedf2330e81983ae288f0950a3a606d"
+    },
+    {
+      "path": "docs/glass-spheres-output-cv.png",
+      "bytes": 118726,
+      "sha256": "446b4d50ad47b96a73a028f0f48f0c005510e4d813e4b63b574dc62c26627c75"
+    },
+    {
+      "path": "docs/glass-spheres-output-midi.png",
+      "bytes": 132955,
+      "sha256": "51c7ef8b34ae419493162096dc7f6977c7e4030c8f0bd9de22ef9f2fcd25ff84"
+    },
+    {
+      "path": "docs/glass-spheres-y-clock.png",
+      "bytes": 154740,
+      "sha256": "9c0f69f40b1f1f756f07d7be652355c9e09e33843d4d605324d6c3f4e13974d7"
+    },
+    {
+      "path": "layout.conf",
+      "bytes": 24883,
+      "sha256": "4ad58a7580b8f0882bbf2238e4713685104e9998c66dfee671d4c657d179da80"
+    },
+    {
+      "path": "params.json",
+      "bytes": 22172,
+      "sha256": "2278ebc67a8ad43fb36b50f1d786942fd76176edd9a38e0629681a2e16996801"
+    },
+    {
+      "path": "patches/0001-wrapper-host-transport.patch",
+      "bytes": 2353,
+      "sha256": "55087b14d2d8c5264b1f1e060c7a0d96ee4512db1c9a9bd174e12d85106cc44a"
+    },
+    {
+      "path": "patches/0002-wrapper-option-qlink-zones.patch",
+      "bytes": 2369,
+      "sha256": "e1743292cbdb420d8cdb04782f14d76013bfc5b43e45f5d59138d42b694521ad"
+    },
+    {
+      "path": "patches/0003-wrapper-popup-one-open.patch",
+      "bytes": 6640,
+      "sha256": "ff0f88dcce1d84bb09b4305a41ddb7dba9fc71f3e845f2470acfa2be8098ae36"
+    },
+    {
+      "path": "skin/gen_layout.py",
+      "bytes": 19162,
+      "sha256": "8828276c10bf3032e297ed58d093e0a65f029959661140e13bd049ed670dc8bc"
+    },
+    {
+      "path": "skin/gen_params.py",
+      "bytes": 3449,
+      "sha256": "07abb776170610541ce7a1305b432579524b39ccc70c2f2ff08c0a1a7da8d3d8"
+    },
+    {
+      "path": "skin/glass.css",
+      "bytes": 1036,
+      "sha256": "d890e211802e3b3b1c1b6e9882a046de897f91f0c6f124eabfd31b3be2f17650"
+    },
+    {
+      "path": "skin/glass_spheres_bg.jpg",
+      "bytes": 28736,
+      "sha256": "cea95be818f15a8aa2998001b2c78c7ded61aa20497912cb80fe56d1c731022d"
+    },
+    {
+      "path": "skin/knob_raspberry.png",
+      "bytes": 26102,
+      "sha256": "311809c8e535f51f0368930edfba81b6c78c6284f2ce6eabbec72836d22bbcd8"
+    },
+    {
+      "path": "skin/knob_teal.png",
+      "bytes": 25850,
+      "sha256": "c8c9b27cdd265dbe28786a7f9b2a8b135a3182be7dd39c3adc9b46c42fa47560"
+    },
+    {
+      "path": "skin/knob_white.png",
+      "bytes": 26106,
+      "sha256": "030d14dc7a490c738e814fb33cfacd2c6c5cd7581054c12e99c27300bee01943"
+    },
+    {
+      "path": "skin/pill_grey.png",
+      "bytes": 416,
+      "sha256": "0aef817958ba975977f5ff3f01cc67d9dce2f1a8e1f982a2a1aff00f59e559d2"
+    },
+    {
+      "path": "skin/pill_raspberry.png",
+      "bytes": 426,
+      "sha256": "674a9d32cffb53d0d9e1c97e7933599f5ec840c18323a82ddbfbff05c724c71a"
+    },
+    {
+      "path": "skin/pill_raspberry_section.png",
+      "bytes": 1030,
+      "sha256": "260de5f5c2da64d959cc0a0f1a84ec1dacc269e593de3dfef6afe69670e22e3e"
+    },
+    {
+      "path": "skin/pill_teal.png",
+      "bytes": 394,
+      "sha256": "cea2d3a751dbc617b1a36e43d05b5028c5c7739656993dc3abe6bbe4ad365d98"
+    },
+    {
+      "path": "skin/pill_teal_section.png",
+      "bytes": 988,
+      "sha256": "4bf47f74d78418e5177643d53927535de2988c2319457bbfeef83fa5939f8d63"
+    },
+    {
+      "path": "skin/post_build.py",
+      "bytes": 17010,
+      "sha256": "9af10c183fe51cc51c9970cf22a71e2f8d581e17ed35afb3f75b13d4d24f5d53"
+    },
+    {
+      "path": "skin/qlink_bounds.json",
+      "bytes": 394,
+      "sha256": "5e0d5e60ec6c1b69dbd2e061dfe41a73acbb3befc7ff916f6037ca047ed3605b"
+    },
+    {
+      "path": "src/cv_out.cc",
+      "bytes": 6048,
+      "sha256": "5996e69bd121d03e85dbc5a5f5cf75061b62688960b2d2e5c3dd0e79d385aba9"
+    },
+    {
+      "path": "src/cv_out.h",
+      "bytes": 1586,
+      "sha256": "628d1760faeae382f1ab86d2eab124eb8ecd9d24154f5869c9fe28d1e0cc7e1c"
+    },
+    {
+      "path": "src/engine.cc",
+      "bytes": 28007,
+      "sha256": "5f09837b4367fc9223b6e4229d5b2247b589ce41a975d2bdc4d9a5d13cc0f9a9"
+    },
+    {
+      "path": "src/midi_out.cc",
+      "bytes": 4443,
+      "sha256": "ccfb62676c1caff3c7734bb93254439165db9a98d3227e4eb3922ae79acd70af"
+    },
+    {
+      "path": "src/midi_out.h",
+      "bytes": 891,
+      "sha256": "718d5357284500b551f73a5dbe271dbce67be39341ad3b666e350aef5479ccac"
+    },
+    {
+      "path": "src/mod.cc",
+      "bytes": 4878,
+      "sha256": "568e4d05289ace8d26262acf824b299d9b940ab0a253ed30ad23c0d422eed4d3"
+    },
+    {
+      "path": "src/mod.h",
+      "bytes": 3022,
+      "sha256": "09b044d003b7156837ebc7b1aa9c70ff2c5300578522a647629f27aea8bdb9fb"
+    },
+    {
+      "path": "src/scales.cc",
+      "bytes": 4074,
+      "sha256": "7ea7e0d38f6bcb70c8dc403e80c0d9ffd87968e7c397f6d55864e543c0a2e7e6"
+    },
+    {
+      "path": "test/Makefile",
+      "bytes": 878,
+      "sha256": "c9b93b2359a9e183a16931bb5dae1693a8c72cca3815cbbcf10bc9a7b391ddbf"
+    },
+    {
+      "path": "test/sim_test.cc",
+      "bytes": 3630,
+      "sha256": "5baa04167c6b1fa0f83a3ed77cd1f3a0fa19d895ed19d127c23df89707b2442f"
+    },
+    {
+      "path": "tested.json",
+      "bytes": 121,
+      "sha256": "42ed5779006c752763cd8fc48839246168f703a566fabb493bd13e5f53c0aaea"
+    },
+    {
+      "path": "third_party/eurorack/README.md",
+      "bytes": 552,
+      "sha256": "d0d70bc579b08d62e145c21a1ad405cbe8a6f8de5443c34e0da2fd83f46ea7a7"
+    },
+    {
+      "path": "third_party/eurorack/marbles/ramp/ramp.h",
+      "bytes": 1604,
+      "sha256": "14649b9eeed75f9a51f6832a3cb73dd483ab8610f4397159e3aa9836d4db1105"
+    },
+    {
+      "path": "third_party/eurorack/marbles/ramp/ramp_divider.h",
+      "bytes": 3335,
+      "sha256": "adb2e739813434d9a3e575b802bb517369410fa4399f86706701a3b1f842b7e1"
+    },
+    {
+      "path": "third_party/eurorack/marbles/ramp/ramp_extractor.cc",
+      "bytes": 12021,
+      "sha256": "641e3e73201ff1e4082bafc41bdfcf94abb30eda7fef01c958cc93a7e60454b7"
+    },
+    {
+      "path": "third_party/eurorack/marbles/ramp/ramp_extractor.h",
+      "bytes": 4235,
+      "sha256": "84eb158bdb83e789a80edb7366687e26d55b83296a5f6cd65ebc7db858dd2c53"
+    },
+    {
+      "path": "third_party/eurorack/marbles/ramp/ramp_generator.h",
+      "bytes": 1944,
+      "sha256": "b25bfe0743fcd422fd14aa5fe5756fec6e173e1c04e9c7000d89afa7b6dc4a55"
+    },
+    {
+      "path": "third_party/eurorack/marbles/ramp/slave_ramp.h",
+      "bytes": 3850,
+      "sha256": "e8975a367bbeaaf3fd3e644d428c8337aa09e62eba8224cde4cc14d4c4c10ddd"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/discrete_distribution_quantizer.cc",
+      "bytes": 3933,
+      "sha256": "385dc124c8e7999c9e911bf312bdd1a1dcd89cbb5d787f3d14a169c7eeeda9e8"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/discrete_distribution_quantizer.h",
+      "bytes": 2446,
+      "sha256": "311df9d8e01ea4c5abd537a17a85420b994d3e091f49e271fe55f3123e310657"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/distributions.h",
+      "bytes": 5323,
+      "sha256": "b2bc8da3d507c584076363872d56c53bac40fdbbb4ac729e418912acc1bd1173"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/lag_processor.cc",
+      "bytes": 3134,
+      "sha256": "b4f0facdf2a76f1097b7141c67f3d10bf12091c4e11a61ca12ecb2e1b0c33177"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/lag_processor.h",
+      "bytes": 1949,
+      "sha256": "7afd708761f67a6258fdec5b9564a0f0770c3c8e49c807767c72a56b4e51ef96"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/output_channel.cc",
+      "bytes": 4912,
+      "sha256": "9de92f55030d59da41f3591645d1f9307e6c1ec0fda7e31a2177f8e2cce535a4"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/output_channel.h",
+      "bytes": 3605,
+      "sha256": "d007cd150c451a26e1efcd53f807d50c6e234c155e79827edc0a7586db1f40be"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/quantizer.cc",
+      "bytes": 4300,
+      "sha256": "8bd64efb272706184f55823fc8b27ca05940c2b484eeb31e1c0e843dde4e1e76"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/quantizer.h",
+      "bytes": 3506,
+      "sha256": "cb4f9adfd0ff5da7723a82673b1cba488b63fdc3b57856d51ba5b4d261ef912b"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/random_generator.h",
+      "bytes": 2092,
+      "sha256": "5f6c3977fdaaef5aefb11dd644b621829014ac4cd5eeda35a7b677175e4a543d"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/random_sequence.h",
+      "bytes": 7889,
+      "sha256": "3fbf59649d3cd8ebad3bfa4120d29afffd8ca5f7c13e4ce05bafadfb7c49d55c"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/random_stream.h",
+      "bytes": 2544,
+      "sha256": "9b30ef41d9b5877c1fb3eaa46ef53cca904291eeb133ae05f6ef13d5b35e3f61"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/t_generator.cc",
+      "bytes": 13220,
+      "sha256": "997e3a6872601f8894b0995cb282c692dd637f83f7cef360f342158d52e8d60a"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/t_generator.h",
+      "bytes": 5895,
+      "sha256": "f0351107105e565c6891725b349644178eae5cf663b66f7eb94817ef3a170a49"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/x_y_generator.cc",
+      "bytes": 6729,
+      "sha256": "92b81a1cc2792a869b61548fea6575eeba374885d7abd3bfce04812966348924"
+    },
+    {
+      "path": "third_party/eurorack/marbles/random/x_y_generator.h",
+      "bytes": 4028,
+      "sha256": "ff8025e808023e80ec55d88a69ada48f974d06626083b37063d16d10f7647974"
+    },
+    {
+      "path": "third_party/eurorack/marbles/resources.cc",
+      "bytes": 340785,
+      "sha256": "a0505384886dccc07bdd03c929fb80464278a306da45074425b120e71438b759"
+    },
+    {
+      "path": "third_party/eurorack/marbles/resources.h",
+      "bytes": 7116,
+      "sha256": "114f6d0be1b1860105d36ad3d21e205a1966482d8172c6ea84c899f46592e225"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/LICENSE",
+      "bytes": 2746,
+      "sha256": "6fde7600ac71ff9e4bdc28b642063d1a65e195f28bb07fb52a9b476efb5aa791"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/dsp/delay_line.h",
+      "bytes": 3530,
+      "sha256": "d6d1bb8e33dedf80bfca976ca1d544fc6ef01bcb1d71a45f3946a0682fd68dcb"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/dsp/dsp.h",
+      "bytes": 4641,
+      "sha256": "98b42900c4accbe9fbb2cfe2ec6fada024b57ec9a1becff008b0f35bd4fd8ddb"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/dsp/hysteresis_quantizer.h",
+      "bytes": 4128,
+      "sha256": "06032c1ec2e21cb7e904544f839a2a59b4c4a9f3f391918e6adfac7f68ecc243"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/dsp/parameter_interpolator.h",
+      "bytes": 2391,
+      "sha256": "4b05028c320e6946418a36e9662a4e5a142e5bfab0423835a77d074d9c7fc217"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/dsp/units.cc",
+      "bytes": 11336,
+      "sha256": "0acbe230ffaa2d181ba285fce54f2fd0b2339b3ec163a1dd00c946e6bf82ea4a"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/dsp/units.h",
+      "bytes": 2289,
+      "sha256": "70cf104c06f0e34ada90416f121417a13d17b6736116f0fc07063c1cd2084877"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/stmlib.h",
+      "bytes": 3142,
+      "sha256": "3afc8589a951e882d9eea16b3eda8623dd6fb0079dd11dfbce817e65be6cfba9"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/utils/gate_flags.h",
+      "bytes": 2376,
+      "sha256": "548608ba37ee125903db4ba36507a678d1cdcdecddad30b11998b19d6ad00ca3"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/utils/random.cc",
+      "bytes": 1483,
+      "sha256": "145c4d7a30e373d001fd664ce6f97a475458f7dc8286252d24ca6f592e0cdb93"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/utils/random.h",
+      "bytes": 2086,
+      "sha256": "423f01e905fa279864878f34e42136ad1eb37a33dad58739affaaab06b793e5d"
+    },
+    {
+      "path": "third_party/eurorack/stmlib/utils/ring_buffer.h",
+      "bytes": 4176,
+      "sha256": "77f43d8f61ca3235e2f47577e224e489aafa20403f3c7640f868652429236e1f"
+    },
+    {
+      "path": "third_party/mpc-vst-plugins",
+      "bytes": null,
+      "sha256": null
+    },
+    {
+      "path": "tools/seqdump.c",
+      "bytes": 2349,
+      "sha256": "b38dd00fdf5d71305605fcb4b8d54d0b64845f0dca2ecd7b1698598804273a42"
+    },
+    {
+      "path": "vst.json",
+      "bytes": 1294,
+      "sha256": "2062d12a6a06c31ed2b1a135a3e9e8e1eef02c3720a517d45b2488fa03e20965"
+    }
+  ]
+}
