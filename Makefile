@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
-.PHONY: all test clean vst rt check assets lab
+.PHONY: all test clean vst rt check assets lab event-pipeline
 all: build/simulate build/core_test build/backend_test build/graph_test
 build:
 	mkdir -p build
@@ -50,3 +50,9 @@ lab: build/lab_simulate
 	./build/lab_simulate build/eight-outputs.csv build/capture.bin
 	python3 tools/validate_capture.py
 check: assets lab
+
+build/event_pipeline_test: tests/event_pipeline_test.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $< -o $@
+check: event-pipeline
+event-pipeline: build/event_pipeline_test
+	./build/event_pipeline_test

@@ -23,37 +23,39 @@ public:
 enum class Transfer { idle, pending, complete, fault };
 class ReliablePacket {
     std::array<uint8_t,48> bytes{};
-    size_t cursor=48;
+    size_t cursor=0, length=0;
     bool failed=false;
 public:
-    bool load(const Frame& f) noexcept {
-        if(failed || cursor!=48) return false;
+    bool load(const Frame& f, uint8_t mask=255) noexcept {
+        if(failed || cursor!=length || !mask) return false;
         for(unsigned j=0;j<outputs;++j) {
-            if(f.values[j]>16383) return false;
+            if((mask&(1u<<j)) && f.values[j]>16383) return false;
         }
+        length=0;
         for(unsigned j=0;j<outputs;++j) {
+            if(!(mask&(1u<<j)))continue;
             auto p=encode(j,f.values[j]);
-            for(unsigned k=0;k<6;++k) bytes[j*6+k]=p[k];
+            for(unsigned k=0;k<6;++k) bytes[length++]=p[k];
         }
         cursor=0; return true;
     }
     Transfer pump(Backend& b) noexcept {
         if(failed) return Transfer::fault;
-        if(cursor==48) return Transfer::idle;
-        auto r=b.write(bytes.data()+cursor,48-cursor);
+        if(cursor==length) return Transfer::idle;
+        auto r=b.write(bytes.data()+cursor,length-cursor);
         if(r.status==IoStatus::again || r.status==IoStatus::interrupted) {
             if(r.count) { failed=true; return Transfer::fault; }
             return Transfer::pending;
         }
-        if(r.status!=IoStatus::progress || r.count>48-cursor) {
+        if(r.status!=IoStatus::progress || r.count>length-cursor) {
             failed=true; return Transfer::fault;
         }
         cursor+=r.count;
-        return cursor==48?Transfer::complete:Transfer::pending;
+        return cursor==length?Transfer::complete:Transfer::pending;
     }
-    bool pending() const noexcept { return cursor!=48; }
+    bool pending() const noexcept { return cursor!=length; }
     // Only after replacing the connection, while disarmed; never append a broken stream.
-    void reset_connection() noexcept { cursor=48; failed=false; }
+    void reset_connection() noexcept { cursor=0; length=0; failed=false; }
 };
 enum class ServiceState { disarmed, active, draining, stopped, fault };
 // Offline sender state model. All calls belong to exactly one coordinator thread.

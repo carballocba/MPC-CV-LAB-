@@ -16,13 +16,13 @@ def run(args,timeout=120):
     subprocess.run(list(map(str,args)),check=True,timeout=timeout)
 flags=['-std=c++17','-O2','-UNDEBUG','-Wall','-Wextra','-Wpedantic','-Werror','-Iinclude','-pthread','-march=armv7-a','-mfpu=vfpv3-d16','-mfloat-abi=hard']
 run([cxx,*flags,'-shared','-fPIC','src/vst/plugin.cpp','-o',out/'mpc_cv.so'])
-for name in ['core_test','backend_test','graph_test','vst_host_test','rt_test']:
+for name in ['core_test','backend_test','graph_test','event_pipeline_test','vst_host_test','rt_test']:
     sources=[f'tests/{name}.cpp']
     if name=='rt_test':sources.append('src/vst/plugin.cpp')
     run([cxx,*flags,*sources,'-ldl','-o',out/name])
 run(['python3','tools/inspect_elf.py',out/'mpc_cv.so'])
 results=[]
-for name in ['core_test','backend_test','graph_test','vst_host_test','rt_test']:
+for name in ['core_test','backend_test','graph_test','event_pipeline_test','vst_host_test','rt_test']:
     cmd=[qemu,'-cpu','cortex-a9','-L',str(sysroot),str(out/name)]
     if name=='vst_host_test':cmd.append(str(out/'mpc_cv.so'))
     start=time.monotonic();run(cmd)

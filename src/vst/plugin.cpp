@@ -24,7 +24,7 @@ struct Plugin {
     std::array<std::atomic<uint32_t>,parameter_count> params{};
     std::atomic<uint32_t> sample_rate{bits(44100)},active{0};
     std::array<std::atomic<uint32_t>,8> codes{},rises{};
-    std::atomic<uint32_t> playing{0},armed{0},fault{0};
+    std::atomic<uint32_t> playing{0},armed{0},fault{0},pending_scenes{0};
     Graph graph;
     Scene shadow=initial_scene();
     Queue<4,Scene> incoming;
@@ -85,7 +85,8 @@ void render(Effect* e,float**,float** out,int32_t count) noexcept {
     if(out && count>0)for(unsigned ch=0;ch<2;++ch)if(out[ch])std::fill(out[ch],out[ch]+count,0.0f);
     if(count<=0 || count>8192) {p.fault.store(1);p.armed.store(0);for(auto& c:p.codes)c.store(0);return;}
     Scene next;
-    bool changed=p.incoming.pop(next);
+    bool popped=p.incoming.pop(next);
+    bool changed=popped;
     if(changed) {
         p.set_scene_parameters(next);
         if(p.graph.configure(next)!=GraphError::none)p.fault.store(2);
@@ -98,13 +99,14 @@ void render(Effect* e,float**,float** out,int32_t count) noexcept {
     }
     if(changed && p.graph.configure(p.apply_parameters(p.graph.scene()))!=GraphError::none)
         p.fault.store(2);
+    if(popped)p.pending_scenes.fetch_sub(1,std::memory_order_acq_rel);
     const auto* time=reinterpret_cast<const Time*>(p.host(e,7,0,(1<<9)|(1<<10)|(1<<12),nullptr,0));
     Transport t;
     if(time) {
         t={bool((time->flags&(1<<9))&&(time->flags&(1<<10))),bool(time->flags&2),time->ppqPos,time->tempo,
            number(p.sample_rate.load(std::memory_order_relaxed))};
     }
-    bool can_run=valid(t)&&t.playing&&p.active.load(std::memory_order_relaxed)&&!p.fault.load();
+    bool can_run=valid(t)&&t.playing&&p.active.load(std::memory_order_relaxed)&&!p.fault.load()&&!p.pending_scenes.load(std::memory_order_acquire);
     p.graph.armed=p.param(0)>=0.5f&&can_run;
     p.playing.store(can_run?1u:0u);p.armed.store(p.graph.armed?1u:0u);
     double start=t.ppq;
@@ -181,7 +183,7 @@ intptr_t dispatch(Effect* e,int32_t op,int32_t index,intptr_t value,void* ptr,fl
     case 23: {
         if(!ptr)return 0;
         std::lock_guard<std::mutex> lock(p.control);
-        auto s=p.apply_parameters(p.shadow);
+        auto s=p.pending_scenes.load(std::memory_order_acquire)?p.shadow:p.apply_parameters(p.shadow);
         if(!save_scene(s,p.chunk))return 0;
         *static_cast<void**>(ptr)=p.chunk.bytes.data();return intptr_t(p.chunk.size);
     }
@@ -189,8 +191,12 @@ intptr_t dispatch(Effect* e,int32_t op,int32_t index,intptr_t value,void* ptr,fl
         if(value<=0 || value>4096)return 0;
         Scene s;if(!load_scene(static_cast<const uint8_t*>(ptr),size_t(value),s))return 0;
         std::lock_guard<std::mutex> lock(p.control);
-        if(!p.incoming.push(s))return 0;
-        p.shadow=s;p.set_scene_parameters(s);return 1;
+        // Publish a pending barrier before the SPSC item. The audio callback alone
+        // updates all scene parameters; no half-loaded control scene can run.
+        p.pending_scenes.fetch_add(1,std::memory_order_acq_rel);
+        if(!p.incoming.push(s)) {p.pending_scenes.fetch_sub(1,std::memory_order_acq_rel);return 0;}
+        p.params[0].store(bits(0),std::memory_order_release);
+        p.shadow=s;return 1;
     }
     case 26:return index>=0 && unsigned(index)<parameter_count && !(index>=26 && index<36);
     case 35:return 2; // synth

@@ -9,10 +9,13 @@
 #include <thread>
 using namespace mpccv::vst;
 Time clock_info{};
-bool missing=false;
-intptr_t host(Effect*,int32_t op,int32_t,intptr_t,void*,float) {
+bool missing=false, arm_in_callback=false;
+intptr_t host(Effect* e,int32_t op,int32_t,intptr_t,void*,float) {
     if(op==1)return 2400;
-    if(op==7)return missing?0:reinterpret_cast<intptr_t>(&clock_info);
+    if(op==7) {
+        if(arm_in_callback)e->setParameter(e,0,1);
+        return missing?0:reinterpret_cast<intptr_t>(&clock_info);
+    }
     return 0;
 }
 int main(int argc,char** argv) {
@@ -56,6 +59,33 @@ int main(int argc,char** argv) {
     std::thread automation([&]{for(int i=0;i<10000;++i)e->setParameter(e,2,float(i%100)/100);});
     for(int i=0;i<500;++i) {e->processReplacing(e,nullptr,out,128);}
     automation.join();
+    // Scene writes must stay disarmed until all accepted whole scenes are applied.
+    saved[15]^=1;
+    mpccv::Scene scene;assert(mpccv::load_scene(saved.data(),saved.size(),scene));
+    mpccv::SceneBytes bytes;
+    for(unsigned i=0;i<3;++i) {
+        scene.nodes[0].offset=double(i)+0.5;assert(mpccv::save_scene(scene,bytes));
+        assert(e->dispatcher(e,24,0,intptr_t(bytes.size),bytes.bytes.data(),0));
+    }
+    scene.nodes[0].offset=9;assert(mpccv::save_scene(scene,bytes));
+    assert(!e->dispatcher(e,24,0,intptr_t(bytes.size),bytes.bytes.data(),0)); // full queue rejects without changing desired scene
+    data=nullptr;n=e->dispatcher(e,23,0,0,&data,0);
+    assert(mpccv::load_scene(static_cast<uint8_t*>(data),size_t(n),scene));assert(scene.nodes[0].offset==2.5);
+    arm_in_callback=true;
+    for(unsigned i=0;i<3;++i) {
+        e->processReplacing(e,nullptr,out,128);telemetry(e,&t);
+        assert(t.armed==(i==2?1u:0u));
+    }
+    arm_in_callback=false;
+    // Multiple control callers serialize chunk publication; only audio consumes.
+    std::atomic<unsigned> accepted{0};
+    auto load_chunks=[&] {for(unsigned i=0;i<200;++i)
+        if(e->dispatcher(e,24,0,intptr_t(bytes.size),bytes.bytes.data(),0))accepted.fetch_add(1);};
+    std::thread chunks_a(load_chunks),chunks_b(load_chunks);
+    for(unsigned i=0;i<500;++i)e->processReplacing(e,nullptr,out,128);
+    chunks_a.join();chunks_b.join();assert(accepted.load()>0);
+    for(unsigned i=0;i<4;++i)e->processReplacing(e,nullptr,out,128);
+    telemetry(e,&t);assert(!t.armed && !t.fault);
     e->dispatcher(e,12,0,0,nullptr,0);telemetry(e,&t);assert(!t.armed);
     for(auto& v:left) {v=0.5f;}
     e->process(e,nullptr,out,128);
