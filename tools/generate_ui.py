@@ -15,6 +15,7 @@ for i in range(8):params.append({'key':f'cv{i+1}','name':f'CV {i+1} simulated vo
 params.extend([{'key':'playing','name':'Transport playing','min':0,'max':1,'default':0},
                {'key':'fault','name':'Backend fault','min':0,'max':1,'default':0}])
 for i in range(8):params.append({'key':f'route{i+1}','name':f'Output {i+1} source','options':['Off']+[f'Node {n}' for n in range(1,17)],'default':i+1})
+for i in range(8):params.append({'key':f'enable{i+1}','name':f'Output {i+1} enabled','min':0,'max':1,'default':1 if i<4 else 0})
 (root/'params.json').write_text(json.dumps({'name':'MPC-CV LAB','params':params},indent=2)+'\n')
 (root/'vst.json').write_text(json.dumps({'name':'MPC-CV LAB','vendor':'carballocba','uid':'McCv','version':100,'so':'mpc_cv.so','params':'params.json','layout':'layout.conf'},indent=2)+'\n')
 lines=['theme_bg=151b24','theme_panel=151b24','theme_ink=edf4fa','theme_ink_dim=a2b3c4','theme_accent=62d9b5','qlink_bounds=column','[tab OVERVIEW]',
@@ -22,8 +23,9 @@ lines=['theme_bg=151b24','theme_panel=151b24','theme_ink=edf4fa','theme_ink_dim=
        'toggle cx=160 cy=600 label="SIM ARM" key=sim_arm',
        'readout cx=460 cy=600 w=180 h=40 label="TRANSPORT" key=playing',
        'readout cx=760 cy=600 w=180 h=40 label="FAULT" key=fault']
-for i in range(8):lines.append(f'readout cx={160+(i%4)*310} cy={270+(i//4)*150} w=210 h=60 label="CV {i+1} / SIM V" key=cv{i+1}')
-lines.append('qlinks "OVERVIEW" = sim_arm,-,-,-')
+for i in range(8):lines.append(f'readout cx={160+(i%4)*310} cy={255+(i//4)*180} w=210 h=60 label="CV {i+1} / SIM V" key=cv{i+1}')
+for i in range(8):lines.append(f'toggle cx={160+(i%4)*310} cy={325+(i//4)*180} bw=180 label="OUT {i+1} ON" key=enable{i+1}')
+lines.append('qlinks "OVERVIEW" = '+','.join(f'enable{i+1}' for i in range(8))+',sim_arm,-,-,-')
 lines+=['[tab ENGINES]','text cx=640 cy=120 label="VIRTUAL NODES / RATE - SCALE - TYPE" size=1.5']
 for i in range(8):
     x=160+(i%4)*310;y=255+(i//4)*260
@@ -42,8 +44,8 @@ lines+=['qlinks "ROUTING" = '+','.join(f'route{i+1}' for i in range(8)),
         'text cx=640 cy=340 label="LOAD VALIDATES GRAPH / DISARMS SIMULATION" size=1.5',
         'text cx=640 cy=450 label="TOUCH SCENE BROWSER AND MORPH: PENDING" size=1.4',
         '[tab SETTINGS]','text cx=640 cy=160 label="OFFLINE BUILD / PHYSICAL OUTPUT ABSENT" size=1.8',
-        'slider_h cx=340 cy=360 w=300 h=40 label="OUTPUT MASK 0-255" key=output_mask',
+        'text cx=340 cy=360 label="OUTPUT SWITCHES: OVERVIEW" size=1.4',
         'readout cx=900 cy=360 w=250 h=60 label="FAULT" key=fault',
-        'text cx=640 cy=520 label="15 = FIRST FOUR / 255 = ALL EIGHT" size=1.5',
-        'qlinks "SETTINGS" = output_mask,-,-,-']
+        'text cx=640 cy=520 label="FOUR OUTPUTS ENABLED BY DEFAULT" size=1.5',
+        'qlinks "SETTINGS" = -,-,-,-']
 (root/'layout.conf').write_text('\n'.join(lines)+'\n')

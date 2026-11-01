@@ -22,7 +22,7 @@ struct Plugin {
     Effect effect{};
     Callback host;
     std::array<std::atomic<uint32_t>,parameter_count> params{};
-    std::atomic<uint32_t> sample_rate{bits(44100)},active{0};
+    std::atomic<uint32_t> sample_rate{bits(44100)},active{0},enabled_mask{15};
     std::array<std::atomic<uint32_t>,8> codes{},rises{};
     std::atomic<uint32_t> playing{0},armed{0},fault{0},pending_scenes{0};
     Graph graph;
@@ -37,7 +37,7 @@ struct Plugin {
         graph.configure(shadow);set_scene_parameters(shadow);
     }
     void set_scene_parameters(const Scene& s) noexcept {
-        params[0].store(bits(0));params[1].store(bits(float(s.enabled)/255));
+        params[0].store(bits(0));enabled_mask.store(s.enabled);
         for(unsigned j=0;j<8;++j)params[36+j].store(bits(s.routes[j].source==no_node?0:float(s.routes[j].source+1)/16));
         for(unsigned i=0;i<8;++i) {
             params[2+i*3].store(bits(float((s.nodes[i].rate-0.001)/63.999)));
@@ -45,9 +45,12 @@ struct Plugin {
             params[4+i*3].store(bits(float(unsigned(s.nodes[i].kind))/8));
         }
     }
-    float param(unsigned i) const noexcept {return number(params[i].load(std::memory_order_relaxed));}
+    float param(unsigned i) const noexcept {
+        if(i==1)return float(enabled_mask.load(std::memory_order_relaxed))/255;
+        return number(params[i].load(std::memory_order_relaxed));
+    }
     Scene apply_parameters(Scene s) const noexcept {
-        s.enabled=uint8_t(std::lround(param(1)*255));
+        s.enabled=uint8_t(enabled_mask.load(std::memory_order_relaxed));
         for(unsigned i=0;i<8 && i<s.count;++i) {
             s.nodes[i].rate=0.001+63.999*param(2+i*3);
             s.nodes[i].scale=-16+32*param(3+i*3);
@@ -70,10 +73,19 @@ void text(void* p,const char* value,size_t capacity) {
 }
 void set(Effect* e,int32_t index,float value) {
     if(index<0 || unsigned(index)>=parameter_count || (index>=26 && index<36) || !std::isfinite(value))return;
-    get(e).params[unsigned(index)].store(bits(std::fmax(0,std::fmin(1,value))),std::memory_order_relaxed);
+    auto& p=get(e);value=std::fmax(0,std::fmin(1,value));
+    if(index==1) {p.enabled_mask.store(uint32_t(std::lround(value*255)),std::memory_order_relaxed);return;}
+    if(index>=44) {
+        uint32_t bit=1u<<unsigned(index-44);
+        if(value>=0.5f)p.enabled_mask.fetch_or(bit,std::memory_order_relaxed);
+        else p.enabled_mask.fetch_and(~bit,std::memory_order_relaxed);
+        return;
+    }
+    p.params[unsigned(index)].store(bits(value),std::memory_order_relaxed);
 }
 float read(Effect* e,int32_t index) {
     auto& p=get(e);
+    if(index>=44 && index<52)return (p.enabled_mask.load(std::memory_order_relaxed)&(1u<<unsigned(index-44)))?1.0f:0.0f;
     if(index>=26 && index<34)return float(p.codes[unsigned(index)-26].load())/16383;
     if(index==34)return float(p.playing.load());
     if(index==35)return float(p.fault.load()!=0);
@@ -92,8 +104,8 @@ void render(Effect* e,float**,float** out,int32_t count) noexcept {
         if(p.graph.configure(next)!=GraphError::none)p.fault.store(2);
     }
     for(unsigned i=1;i<parameter_count;++i) {
-        if(i>=26 && i<36)continue;
-        auto value=p.params[i].load(std::memory_order_relaxed);
+        if((i>=26 && i<36) || i>=44)continue;
+        auto value=i==1?p.enabled_mask.load(std::memory_order_relaxed):p.params[i].load(std::memory_order_relaxed);
         if(value!=p.last_parameters[i])changed=true;
         p.last_parameters[i]=value;
     }
@@ -156,7 +168,7 @@ intptr_t dispatch(Effect* e,int32_t op,int32_t index,intptr_t value,void* ptr,fl
                 text(ptr,labels[node<=16?node:0],8);}
             return 1;
         }
-        if(index==0 || index==34 || index==35) {text(ptr,value>=0.5?(index==35?"Fault":"On"):(index==35?"OK":"Off"),8);return 1;}
+        if(index==0 || index==34 || index==35 || (index>=44 && index<52)) {text(ptr,value>=0.5?(index==35?"Fault":"On"):(index==35?"OK":"Off"),8);return 1;}
         if(index==1) {if(ptr)std::snprintf(static_cast<char*>(ptr),8,"%u",unsigned(std::lround(value*255))&255u);return 1;}
         if(index>=26 && index<34)value=double(p.codes[unsigned(index)-26].load())/3276.8;
         else if(index>=2 && index<26 && (index-2)%3==0)value=0.001+63.999*value;
@@ -171,6 +183,7 @@ intptr_t dispatch(Effect* e,int32_t op,int32_t index,intptr_t value,void* ptr,fl
         else if(index>=26 && index<34){std::snprintf(name,sizeof(name),"CV%d",index-25);text(ptr,name,8);}
         else if(index==34)text(ptr,"Playing",8);
         else if(index==35)text(ptr,"Fault",8);
+        else if(index>=44 && index<52){std::snprintf(name,sizeof(name),"CV%d On",index-43);text(ptr,name,8);}
         else if(index>=36 && index<44){std::snprintf(name,sizeof(name),"Route%d",index-35);text(ptr,name,8);}
         else if(index>=2 && index<26) {
             std::snprintf(name,sizeof(name),"N%d %s",(index-2)/3+1,(index-2)%3==0?"Rate":(index-2)%3==1?"Scale":"Type");text(ptr,name,8);

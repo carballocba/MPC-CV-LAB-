@@ -23,7 +23,7 @@ int main(int argc,char** argv) {
     auto entry=reinterpret_cast<Effect*(*)(Callback)>(dlsym(lib,"VSTPluginMain"));assert(entry);
     auto telemetry=reinterpret_cast<int(*)(Effect*,Telemetry*)>(dlsym(lib,"mpc_cv_read_telemetry"));assert(telemetry);
     assert(!entry(nullptr));auto* e=entry(host);auto* other=entry(host);assert(e&&other);
-    assert(e->magic==magic&&e->uniqueID==identity&&e->numParams==44&&e->numOutputs==2);
+    assert(e->magic==magic&&e->uniqueID==identity&&e->numParams==52&&e->numOutputs==2);
     assert(e->dispatcher(e,0,0,0,nullptr,0));
     char display[8]{};assert(e->dispatcher(e,7,4,0,display,0));assert(std::strcmp(display,"Sine")==0);
     assert(e->dispatcher(e,7,36,0,display,0));assert(std::strcmp(display,"Node 1")==0);
@@ -33,6 +33,15 @@ int main(int argc,char** argv) {
     for(auto& v:left) {v=1;}
     for(auto& v:right) {v=1;}
     e->processReplacing(e,nullptr,out,128);for(auto v:left)assert(v==0);for(auto v:right)assert(v==0);
+    for(unsigned i=0;i<8;++i)assert(e->getParameter(e,44+int(i))==(i<4?1.0f:0.0f));
+    e->setParameter(e,44,0);assert(e->getParameter(e,44)==0);
+    e->setParameter(e,51,1);assert(e->getParameter(e,51)==1);
+    assert(std::lround(e->getParameter(e,1)*255)==142);
+    e->setParameter(e,1,0);
+    std::thread enable_a([&]{for(unsigned i=0;i<1000;++i)e->setParameter(e,44,1);});
+    std::thread enable_b([&]{for(unsigned i=0;i<1000;++i)e->setParameter(e,51,1);});
+    enable_a.join();enable_b.join();assert(std::lround(e->getParameter(e,1)*255)==129);
+    e->setParameter(e,1,15.0f/255);
     Telemetry t{};assert(telemetry(e,&t));assert(!t.armed);
     e->setParameter(e,0,1);e->setParameter(e,1,1);e->processReplacing(e,nullptr,out,128);
     telemetry(e,&t);assert(t.armed&&!t.fault&&t.codes[6]>0&&t.codes[7]>0);

@@ -23,7 +23,7 @@ preset=json.loads((root/'presets/sine.engine.json').read_text())
 assert preset['kind']=='engine_preset' and preset['schema_version']==1
 assert preset['engine']['type']=='sine' and 0<preset['engine']['cycles_per_beat']<=64
 params=json.loads((root/'ui/native/params.json').read_text())['params']
-keys=[p['key'] for p in params];assert len(keys)==44 and len(set(keys))==44
+keys=[p['key'] for p in params];assert len(keys)==52 and len(set(keys))==52
 layout=(root/'ui/native/layout.conf').read_text()
 assert re.findall(r'\[tab (.*?)\]',layout)==['OVERVIEW','ENGINES','ROUTING','DEVICES','SCENES','SETTINGS']
 for key in re.findall(r'\bkey=([^\s]+)',layout):assert key in keys
@@ -31,4 +31,4 @@ for line in layout.splitlines():
     if line.startswith('qlinks '):
         entries=line.split('=',1)[1].strip().split(',');assert len(entries)<=16
         for k in entries:assert k=='-' or k in keys
-print('PASS: generic profile, preset fixture, 44 parameters, six pages and Q-Link bindings')
+print('PASS: generic profile, preset fixture, 52 parameters, six pages and Q-Link bindings')

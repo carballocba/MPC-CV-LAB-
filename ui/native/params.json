@@ -516,6 +516,62 @@
         "Node 16"
       ],
       "default": 8
+    },
+    {
+      "key": "enable1",
+      "name": "Output 1 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "enable2",
+      "name": "Output 2 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "enable3",
+      "name": "Output 3 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "enable4",
+      "name": "Output 4 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "enable5",
+      "name": "Output 5 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "enable6",
+      "name": "Output 6 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "enable7",
+      "name": "Output 7 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "enable8",
+      "name": "Output 8 enabled",
+      "min": 0,
+      "max": 1,
+      "default": 0
     }
   ]
 }
