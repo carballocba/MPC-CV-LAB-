@@ -3,3 +3,5 @@
 /research/glass-spheres-source/
 .DS_Store
 /ui/native/build/
+
+__pycache__/

@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
-.PHONY: all test clean vst rt check assets lab event-pipeline
+.PHONY: all test clean vst rt check assets lab event-pipeline scene-tools
 all: build/simulate build/core_test build/backend_test build/graph_test
 build:
 	mkdir -p build
@@ -56,3 +56,9 @@ build/event_pipeline_test: tests/event_pipeline_test.cpp $(HEADERS) | build
 check: event-pipeline
 event-pipeline: build/event_pipeline_test
 	./build/event_pipeline_test
+
+build/scene_io_test: tests/scene_io_test.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $< -o $@
+scene-tools: build/scene_io_test
+	python3 -m unittest discover -s tests -p 'test_scene_tools.py' -v
+check: scene-tools
