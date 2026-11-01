@@ -12,6 +12,10 @@ void* operator new(std::size_t n) {assert(!in_render);if(auto* p=std::malloc(n?n
 void* operator new[](std::size_t n) {return ::operator new(n);}
 void operator delete(void* p) noexcept {assert(!in_render);std::free(p);}
 void operator delete[](void* p) noexcept {::operator delete(p);}
+#if defined(__cpp_sized_deallocation)
+void operator delete(void* p,std::size_t) noexcept {::operator delete(p);}
+void operator delete[](void* p,std::size_t) noexcept {::operator delete[](p);}
+#endif
 using namespace mpccv::vst;
 Time ti{};
 intptr_t host(Effect*,int32_t op,int32_t,intptr_t,void*,float) {
