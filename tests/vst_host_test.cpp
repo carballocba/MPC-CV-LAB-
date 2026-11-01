@@ -27,7 +27,8 @@ int main(int argc,char** argv) {
     e->dispatcher(e,10,0,0,nullptr,44100);e->dispatcher(e,11,0,128,nullptr,0);e->dispatcher(e,12,0,1,nullptr,0);
     clock_info.ppqPos=0.25;clock_info.tempo=120;clock_info.flags=2|(1<<9)|(1<<10);
     float left[128],right[128];float* out[]{left,right};
-    for(auto& v:left)v=1;for(auto& v:right)v=1;
+    for(auto& v:left) {v=1;}
+    for(auto& v:right) {v=1;}
     e->processReplacing(e,nullptr,out,128);for(auto v:left)assert(v==0);for(auto v:right)assert(v==0);
     Telemetry t{};assert(telemetry(e,&t));assert(!t.armed);
     e->setParameter(e,0,1);e->setParameter(e,1,1);e->processReplacing(e,nullptr,out,128);
@@ -53,9 +54,12 @@ int main(int argc,char** argv) {
     clock_info.flags=2|(1<<9)|(1<<10);clock_info.ppqPos=0.25;
     // Host automation may arrive concurrently; atomic parameters avoid an audio lock.
     std::thread automation([&]{for(int i=0;i<10000;++i)e->setParameter(e,2,float(i%100)/100);});
-    for(int i=0;i<500;++i)e->processReplacing(e,nullptr,out,128);automation.join();
+    for(int i=0;i<500;++i) {e->processReplacing(e,nullptr,out,128);}
+    automation.join();
     e->dispatcher(e,12,0,0,nullptr,0);telemetry(e,&t);assert(!t.armed);
-    for(auto& v:left)v=0.5f;e->process(e,nullptr,out,128);for(auto v:left)assert(v==0.5f);
+    for(auto& v:left) {v=0.5f;}
+    e->process(e,nullptr,out,128);
+    for(auto v:left) {assert(v==0.5f);}
     telemetry(other,&t);assert(!t.armed);
     e->dispatcher(e,1,0,0,nullptr,0);other->dispatcher(other,1,0,0,nullptr,0);assert(!dlclose(lib));
 }

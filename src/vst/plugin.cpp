@@ -61,7 +61,13 @@ struct Plugin {
     }
 };
 Plugin& get(Effect* e) {return *static_cast<Plugin*>(e->object);}
-void text(void* p,const char* value,size_t capacity) {if(p){std::strncpy(static_cast<char*>(p),value,capacity-1);static_cast<char*>(p)[capacity-1]=0;}}
+void text(void* p,const char* value,size_t capacity) {
+    if(!p || !capacity)return;
+    auto* dest=static_cast<char*>(p);
+    size_t i=0;
+    while(i+1<capacity && value[i]) {dest[i]=value[i];++i;}
+    dest[i]=0;
+}
 void set(Effect* e,int32_t index,float value) {
     if(index<0 || unsigned(index)>=parameter_count || (index>=26 && index<36) || !std::isfinite(value))return;
     get(e).params[unsigned(index)].store(bits(std::fmax(0,std::fmin(1,value))),std::memory_order_relaxed);
@@ -144,15 +150,17 @@ intptr_t dispatch(Effect* e,int32_t op,int32_t index,intptr_t value,void* ptr,fl
         }
         if(index>=36 && index<44) {
             if(ptr) {auto node=unsigned(std::lround(value*16));
-                if(node)std::snprintf(static_cast<char*>(ptr),8,"Node %u",node);else text(ptr,"Off",8);}
+                constexpr const char* labels[]{"Off","Node 1","Node 2","Node 3","Node 4","Node 5","Node 6","Node 7","Node 8","Node 9","Node 10","Node 11","Node 12","Node 13","Node 14","Node 15","Node 16"};
+                text(ptr,labels[node<=16?node:0],8);}
             return 1;
         }
         if(index==0 || index==34 || index==35) {text(ptr,value>=0.5?(index==35?"Fault":"On"):(index==35?"OK":"Off"),8);return 1;}
-        if(index==1) {if(ptr)std::snprintf(static_cast<char*>(ptr),8,"%u",unsigned(std::lround(value*255)));return 1;}
+        if(index==1) {if(ptr)std::snprintf(static_cast<char*>(ptr),8,"%u",unsigned(std::lround(value*255))&255u);return 1;}
         if(index>=26 && index<34)value=double(p.codes[unsigned(index)-26].load())/3276.8;
         else if(index>=2 && index<26 && (index-2)%3==0)value=0.001+63.999*value;
         else if(index>=2 && index<26 && (index-2)%3==1)value=-16+32*value;
-        if(ptr)std::snprintf(static_cast<char*>(ptr),8,"%.3f",value);return 1;
+        if(ptr)std::snprintf(static_cast<char*>(ptr),8,"%.3f",value);
+        return 1;
     }
     case 8: {
         char name[16]{};

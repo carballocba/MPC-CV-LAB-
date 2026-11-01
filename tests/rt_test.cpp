@@ -19,7 +19,9 @@ void operator delete[](void* p,std::size_t) noexcept {::operator delete[](p);}
 using namespace mpccv::vst;
 Time ti{};
 intptr_t host(Effect*,int32_t op,int32_t,intptr_t,void*,float) {
-    if(op==1)return 2400;if(op==7)return reinterpret_cast<intptr_t>(&ti);return 0;
+    if(op==1)return 2400;
+    if(op==7)return reinterpret_cast<intptr_t>(&ti);
+    return 0;
 }
 int main() {
     auto* e=VSTPluginMain(host);assert(e);
