@@ -1,4 +1,6 @@
 #include "mpccv/vst/abi.hpp"
+#include "mpccv/vst/capture_api.hpp"
+#include "mpccv/capture.hpp"
 #include "mpccv/scene.hpp"
 #include <atomic>
 #include <cstdio>
@@ -26,6 +28,7 @@ struct Plugin {
     std::array<std::atomic<uint32_t>,8> codes{},rises{};
     std::atomic<uint32_t> playing{0},armed{0},fault{0},pending_scenes{0};
     Graph graph;
+    CapturePort capture;
     Scene shadow=initial_scene();
     Queue<4,Scene> incoming;
     std::mutex control; // chunks only, never used by render/setParameter
@@ -93,9 +96,15 @@ float read(Effect* e,int32_t index) {
 }
 void render(Effect* e,float**,float** out,int32_t count) noexcept {
     auto& p=get(e);
-    // Replacing callback must clear audio even when transport is absent.
-    if(out && count>0)for(unsigned ch=0;ch<2;++ch)if(out[ch])std::fill(out[ch],out[ch]+count,0.0f);
-    if(count<=0 || count>8192) {p.fault.store(1);p.armed.store(0);for(auto& c:p.codes)c.store(0);return;}
+    if(count==0)return; // Host probes may legally request no samples.
+    CapturePort::Reader capture_reader(p.capture);
+    auto* capture=capture_reader.get();
+    if(count<0 || count>8192) {
+        if(capture)capture->begin_block(p.sample_index,false,0);
+        p.fault.store(1);p.armed.store(0);for(auto& c:p.codes)c.store(0);return;
+    }
+    // Clear only supported, caller-owned buffers after validating the work bound.
+    if(out)for(unsigned ch=0;ch<2;++ch)if(out[ch])std::fill(out[ch],out[ch]+count,0.0f);
     Scene next;
     bool popped=p.incoming.pop(next);
     bool changed=popped;
@@ -125,6 +134,14 @@ void render(Effect* e,float**,float** out,int32_t count) noexcept {
     bool loop=time && (time->flags&4) && (time->flags&(1<<12)) &&
         std::isfinite(time->cycleStartPos)&&std::isfinite(time->cycleEndPos)&&
         time->cycleStartPos>=0&&time->cycleEndPos>time->cycleStartPos && start>=time->cycleStartPos && start<time->cycleEndPos;
+    uint8_t gate_mask=0;
+    if(capture) {
+        for(unsigned j=0;j<8;++j) {
+            auto source=p.graph.scene().routes[j].source;
+            if(source!=no_node && p.graph.scene().nodes[source].kind==Kind::gate)gate_mask|=1u<<j;
+        }
+        capture->begin_block(p.sample_index,p.graph.armed,p.graph.scene().enabled);
+    }
     Frame f;
     for(int32_t i=0;i<count;++i) {
         if(can_run) {
@@ -133,6 +150,7 @@ void render(Effect* e,float**,float** out,int32_t count) noexcept {
                 t.ppq=time->cycleStartPos+std::fmod(t.ppq-time->cycleEndPos,time->cycleEndPos-time->cycleStartPos);
         }
         f=p.graph.sample(t,p.sample_index++);
+        if(capture)capture->gates(f,gate_mask);
         for(unsigned j=0;j<8;++j) {
             bool high=f.values[j]!=0;
             auto source=p.graph.scene().routes[j].source;
@@ -141,6 +159,7 @@ void render(Effect* e,float**,float** out,int32_t count) noexcept {
             p.gate_high[j]=high;
         }
     }
+    if(capture)capture->levels(f,gate_mask);
     for(unsigned j=0;j<8;++j)p.codes[j].store(f.values[j],std::memory_order_relaxed);
 }
 void legacy(Effect* e,float**,float**,int32_t count) noexcept {
@@ -233,8 +252,28 @@ extern "C" mpccv::vst::Effect* VSTPluginMain(mpccv::vst::Callback host) {
     return &e;
 }
 extern "C" int mpc_cv_read_telemetry(mpccv::vst::Effect* e,mpccv::vst::Telemetry* out) {
-    if(!e || e->magic!=magic || !out)return 0;
+    if(!e || e->magic!=magic || e->uniqueID!=identity || e->dispatcher!=dispatch || !out)return 0;
     auto& p=get(e);
     for(unsigned j=0;j<8;++j){out->codes[j]=p.codes[j].load();out->gate_rises[j]=p.rises[j].load();}
     out->playing=p.playing.load();out->armed=p.armed.load();out->fault=p.fault.load();return 1;
+}
+
+namespace {
+bool our_effect(mpccv::vst::Effect* e) noexcept {
+    return e && e->magic==magic && e->uniqueID==identity && e->dispatcher==dispatch && e->object;
+}
+}
+extern "C" int32_t mpc_cv_capture_start(mpccv::vst::Effect* e,uint32_t mask) {
+    try {return our_effect(e)?int32_t(get(e).capture.start(mask)):0;} catch(...) {return int32_t(CaptureResult::unavailable);}
+}
+extern "C" int32_t mpc_cv_capture_stop(mpccv::vst::Effect* e,mpccv::CaptureStatus* last) {
+    try {return our_effect(e)?int32_t(get(e).capture.stop(last)):0;} catch(...) {return int32_t(CaptureResult::unavailable);}
+}
+extern "C" int32_t mpc_cv_capture_status(mpccv::vst::Effect* e,mpccv::CaptureStatus* out) {
+    if(!our_effect(e) || !out)return 0;
+    try {*out=get(e).capture.status();return 1;} catch(...) {return 0;}
+}
+extern "C" uint32_t mpc_cv_capture_copy(mpccv::vst::Effect* e,mpccv::CaptureRecord* out,uint32_t capacity) {
+    if(!our_effect(e) || !out || capacity>mpccv::capture_history_size)return 0;
+    try {return uint32_t(get(e).capture.copy(out,capacity));} catch(...) {return 0;}
 }

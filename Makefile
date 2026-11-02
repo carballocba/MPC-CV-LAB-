@@ -1,6 +1,6 @@
 CXX = clang++
 CXXFLAGS = -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread
-.PHONY: all test clean vst rt check assets lab event-pipeline scene-tools
+.PHONY: all test clean vst rt check assets lab event-pipeline scene-tools capture vst-capture vst-demo
 all: build/simulate build/core_test build/backend_test build/graph_test
 build:
 	mkdir -p build
@@ -20,7 +20,7 @@ test: all
 clean:
 	rm -rf build
 
-HEADERS = $(wildcard include/mpccv/*.hpp) include/mpccv/vst/abi.hpp
+HEADERS = $(wildcard include/mpccv/*.hpp) $(wildcard include/mpccv/vst/*.hpp)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 SHARED = -dynamiclib
@@ -29,15 +29,15 @@ else
 SHARED = -shared -fPIC
 DL_LIB = -ldl
 endif
-build/mpc_cv.so: src/vst/plugin.cpp $(HEADERS) | build
-	$(CXX) $(CXXFLAGS) $(SHARED) $< -o $@
+build/mpc_cv.so: src/vst/plugin.cpp src/capture.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $(SHARED) -fvisibility=hidden src/vst/plugin.cpp src/capture.cpp -o $@
 build/vst_host_test: tests/vst_host_test.cpp $(HEADERS) | build
 	$(CXX) $(CXXFLAGS) $< $(DL_LIB) -o $@
 vst: build/mpc_cv.so build/vst_host_test
 	./build/vst_host_test ./build/mpc_cv.so
 
-build/rt_test: tests/rt_test.cpp src/vst/plugin.cpp $(HEADERS) | build
-	$(CXX) $(CXXFLAGS) tests/rt_test.cpp src/vst/plugin.cpp -o $@
+build/rt_test: tests/rt_test.cpp src/vst/plugin.cpp src/capture.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) tests/rt_test.cpp src/vst/plugin.cpp src/capture.cpp -o $@
 rt: build/rt_test
 	./build/rt_test
 check: test vst rt
@@ -62,3 +62,22 @@ build/scene_io_test: tests/scene_io_test.cpp $(HEADERS) | build
 scene-tools: build/scene_io_test
 	python3 -m unittest discover -s tests -p 'test_scene_tools.py' -v
 check: scene-tools
+
+build/capture_test: tests/capture_test.cpp src/capture.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) tests/capture_test.cpp src/capture.cpp -o $@
+capture: build/capture_test
+	./build/capture_test
+check: capture
+
+build/vst_capture_test: tests/vst_capture_test.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $< $(DL_LIB) -o $@
+vst-capture: build/mpc_cv.so build/vst_capture_test
+	./build/vst_capture_test ./build/mpc_cv.so
+check: vst-capture
+
+build/vst_capture_demo: src/vst_capture_demo.cpp $(HEADERS) | build
+	$(CXX) $(CXXFLAGS) $< $(DL_LIB) -o $@
+vst-demo: build/mpc_cv.so build/vst_capture_demo
+	./build/vst_capture_demo ./build/mpc_cv.so build/vst-capture.csv
+	python3 tools/validate_vst_capture.py build/vst-capture.csv
+check: vst-demo

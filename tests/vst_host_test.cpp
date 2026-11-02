@@ -25,6 +25,7 @@ int main(int argc,char** argv) {
     assert(!entry(nullptr));auto* e=entry(host);auto* other=entry(host);assert(e&&other);
     assert(e->magic==magic&&e->uniqueID==identity&&e->numParams==52&&e->numOutputs==2);
     assert(e->dispatcher(e,0,0,0,nullptr,0));
+    e->processReplacing(e,nullptr,nullptr,0); // harmless zero-frame probe
     char display[8]{};assert(e->dispatcher(e,7,4,0,display,0));assert(std::strcmp(display,"Sine")==0);
     assert(e->dispatcher(e,7,36,0,display,0));assert(std::strcmp(display,"Node 1")==0);
     e->dispatcher(e,10,0,0,nullptr,44100);e->dispatcher(e,11,0,128,nullptr,0);e->dispatcher(e,12,0,1,nullptr,0);
@@ -100,5 +101,6 @@ int main(int argc,char** argv) {
     e->process(e,nullptr,out,128);
     for(auto v:left) {assert(v==0.5f);}
     telemetry(other,&t);assert(!t.armed);
+    e->processReplacing(e,nullptr,nullptr,8193);telemetry(e,&t);assert(t.fault==1 && !t.armed);
     e->dispatcher(e,1,0,0,nullptr,0);other->dispatcher(other,1,0,0,nullptr,0);assert(!dlclose(lib));
 }

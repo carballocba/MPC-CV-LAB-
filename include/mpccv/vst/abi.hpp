@@ -34,5 +34,6 @@ static_assert(sizeof(Time)==88,"VST time ABI mismatch");
 static_assert(sizeof(Effect)==(sizeof(void*)==8?192:144),"VST effect ABI mismatch");
 struct Telemetry { uint32_t codes[8],playing,armed,fault,gate_rises[8]; };
 }
-extern "C" mpccv::vst::Effect* VSTPluginMain(mpccv::vst::Callback);
-extern "C" int mpc_cv_read_telemetry(mpccv::vst::Effect*,mpccv::vst::Telemetry*);
+#define MPCCV_EXPORT __attribute__((visibility("default")))
+extern "C" MPCCV_EXPORT mpccv::vst::Effect* VSTPluginMain(mpccv::vst::Callback);
+extern "C" MPCCV_EXPORT int mpc_cv_read_telemetry(mpccv::vst::Effect*,mpccv::vst::Telemetry*);

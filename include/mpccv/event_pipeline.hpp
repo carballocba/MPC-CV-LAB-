@@ -3,6 +3,7 @@
 
 namespace mpccv {
 struct OutputEvent { Frame frame{}; uint8_t mask=0; };
+struct PacketMetadata {uint64_t sample=0; uint8_t mask=0; uint32_t role=0;};
 enum class PipelineState:uint32_t { idle, starting, active, zeroing, stopped, fault };
 enum class PipelineFault:uint32_t { none, overflow, invalid_event, timestamp, transport, write_timeout, heartbeat_timeout, clock };
 // Capture/worker abstraction only: no device access and no thread creation.
@@ -24,6 +25,7 @@ template<size_t N> class EventPipeline {
     uint64_t last_ms=0, packet_ms=0, heartbeat_seen_ms=0;
     uint32_t heartbeat_seen=0;
     enum class PacketKind { prime, event, safe } kind=PacketKind::prime;
+    PacketMetadata metadata{};
     void set_state(PipelineState s) noexcept {state_.store(uint32_t(s),std::memory_order_release);}
     void fail(PipelineFault f) noexcept {
         uint32_t expected=0;
@@ -37,11 +39,13 @@ template<size_t N> class EventPipeline {
     }
     bool load(const Frame& f,uint8_t mask,PacketKind packet_kind,uint64_t ms) noexcept {
         if(!packet.load(f,mask)) {fail(PipelineFault::invalid_event);set_state(PipelineState::fault);return false;}
-        kind=packet_kind;packet_ms=ms;return true;
+        kind=packet_kind;metadata={f.sample,mask,uint32_t(packet_kind)};packet_ms=ms;return true;
     }
 public:
     explicit EventPipeline(uint8_t reserved_mask=255,uint64_t write_timeout_ms=100,uint64_t watchdog_ms=250) noexcept
       :reserved(reserved_mask),timeout_ms(write_timeout_ms?write_timeout_ms:1),heartbeat_ms(watchdog_ms?watchdog_ms:1) {}
+    // Consumer-only metadata, read by its backend while a packet is written.
+    PacketMetadata packet_metadata() const noexcept {return metadata;}
     PipelineState state() const noexcept {return PipelineState(state_.load(std::memory_order_acquire));}
     PipelineFault fault() const noexcept {return PipelineFault(fault_.load(std::memory_order_acquire));}
     uint32_t delivered() const noexcept {return delivered_.load(std::memory_order_acquire);}

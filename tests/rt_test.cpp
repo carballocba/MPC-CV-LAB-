@@ -2,6 +2,7 @@
 #error Tests require assertions; compile with -UNDEBUG
 #endif
 #include "mpccv/vst/abi.hpp"
+#include "mpccv/vst/capture_api.hpp"
 #include "mpccv/event_pipeline.hpp"
 #include <atomic>
 #include <cassert>
@@ -42,5 +43,12 @@ int main() {
         pipeline.tick(sink,i,0);
         ti.ppqPos+=frames*120.0/(60*44100);
     }
+    // Integrated capture is opt-in; starting/stopping its worker stays outside the guard.
+    assert(mpc_cv_capture_start(e,1)==1);
+    for(unsigned i=0;i<10;++i) {
+        in_render=true;e->processReplacing(e,nullptr,output,128);in_render=false;
+        ti.ppqPos+=128*120.0/(60*44100);
+    }
+    mpccv::CaptureStatus stopped;assert(mpc_cv_capture_stop(e,&stopped)==1 && stopped.safe_acknowledged);
     e->dispatcher(e,1,0,0,nullptr,0);
 }

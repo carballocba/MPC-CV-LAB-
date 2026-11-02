@@ -33,4 +33,4 @@ if ver:
             versions.append(string(strings,name));a+=next_aux
         if not next_record:break
         cursor+=next_record
-print(json.dumps({'file':str(p),'sha256':hashlib.sha256(b).hexdigest(),'class':'ELF32','machine':'ARM','eabi':flags>>24,'hard_float':bool(flags&0x400),'needed':needed,'symbol_versions':sorted(set(versions)),'entry_exported':'VSTPluginMain' in exports,'telemetry_exported':'mpc_cv_read_telemetry' in exports},indent=2))
+print(json.dumps({'file':str(p),'sha256':hashlib.sha256(b).hexdigest(),'class':'ELF32','machine':'ARM','eabi':flags>>24,'hard_float':bool(flags&0x400),'needed':needed,'symbol_versions':sorted(set(versions)),'entry_exported':'VSTPluginMain' in exports,'telemetry_exported':'mpc_cv_read_telemetry' in exports,'capture_api_exported':all(name in exports for name in ['mpc_cv_capture_start','mpc_cv_capture_stop','mpc_cv_capture_status','mpc_cv_capture_copy'])},indent=2))
