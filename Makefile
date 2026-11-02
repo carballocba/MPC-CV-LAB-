@@ -26,7 +26,7 @@ ifeq ($(UNAME_S),Darwin)
 SHARED = -dynamiclib
 DL_LIB =
 else
-SHARED = -shared -fPIC
+SHARED = -shared -fPIC -Wl,--exclude-libs,ALL
 DL_LIB = -ldl
 endif
 build/mpc_cv.so: src/vst/plugin.cpp src/capture.cpp $(HEADERS) | build

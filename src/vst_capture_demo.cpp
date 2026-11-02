@@ -26,13 +26,13 @@ int main(int argc,char** argv) {
     auto* effect=entry(host);if(!effect)return 4;
     std::ofstream csv(argv[2]);if(!csv)return 5;
     csv<<"sequence,sample,role,output,code\n";
-    uint32_t seen=0;bool complete=true;
+    uint32_t seen=0, gaps=0;bool complete=true;
     std::array<CaptureRecord,capture_history_size> records{};
     auto collect=[&] {
         auto count=copy(effect,records.data(),uint32_t(records.size()));
         for(uint32_t i=0;i<count;++i) {
             const auto& record=records[i];if(record.sequence<=seen)continue;
-            if(record.sequence!=seen+1)complete=false;
+            if(record.sequence!=seen+1) {complete=false;++gaps;}
             seen=record.sequence;
             for(unsigned byte=0;byte<record.length;byte+=6) {
                 if(record.bytes[byte]!=0xbf || record.bytes[byte+3]!=0xbf || record.bytes[byte+4]!=record.bytes[byte+1]+1)complete=false;
@@ -41,6 +41,19 @@ int main(int argc,char** argv) {
                 csv<<record.sequence<<','<<record.sample<<','<<record.role<<','<<output<<','<<value<<'\n';
             }
         }
+    };
+    CaptureStatus info;
+    auto drain=[&] {
+        // A quiesced producer has an exact target; scheduler silence is not a drain acknowledgement.
+        if(!status(effect,&info))return false;
+        auto target=info.accepted+1; // one priming packet plus accepted events
+        for(unsigned i=0;i<1000;++i) {
+            collect();
+            if(!status(effect,&info) || info.fault)return false;
+            if(info.delivered>=target)return true;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        return false;
     };
     effect->dispatcher(effect,12,0,1,nullptr,0);
     if(start(effect,255)!=1)return 6;
@@ -51,21 +64,18 @@ int main(int argc,char** argv) {
         int count=int(176400-sample<128?176400-sample:128);
         effect->processReplacing(effect,nullptr,nullptr,count);
         collect(); // Diagnostics/file I/O on this offline host, outside render.
+        // Bound diagnostic backlog for a non-real-time, faster-than-audio host.
+        if((sample/128)%16==15 && !drain())complete=false;
     }
-    // Let queued events finish before requesting teardown, which intentionally discards pending work.
-    CaptureStatus info;uint32_t last=0;unsigned stable=0;
-    for(unsigned i=0;i<1000 && stable<8;++i) {
-        collect();if(!status(effect,&info) || info.fault)complete=false;
-        stable=info.delivered==last?stable+1:0;last=info.delivered;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+    if(!drain())complete=false;
     time_info.flags=(1<<9)|(1<<10);
     effect->processReplacing(effect,nullptr,nullptr,128);
+    if(!drain())complete=false;
     // Capture stop itself appends a complete reserved-output zero packet.
     if(stop(effect,&info)!=1 || !info.safe_acknowledged)complete=false;
     collect();if(seen!=info.delivered)complete=false;
     csv.flush();if(!csv)complete=false;
     effect->dispatcher(effect,1,0,0,nullptr,0);if(dlclose(library)!=0)complete=false;
-    if(!complete){std::cerr<<"capture incomplete or faulted\n";return 7;}
+    if(!complete){std::cerr<<"capture incomplete: fault="<<info.fault<<" seen="<<seen<<" delivered="<<info.delivered<<" accepted="<<info.accepted<<" gaps="<<gaps<<"\n";return 7;}
     std::cout<<"PASS integrated VST capture: "<<seen<<" packets, "<<info.history_overwritten<<" history overwrites, complete CSV\n";
 }

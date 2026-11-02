@@ -15,7 +15,7 @@ template<size_t N> class EventPipeline {
     const uint8_t reserved;
     const uint64_t timeout_ms, heartbeat_ms;
     std::atomic<uint32_t> state_{uint32_t(PipelineState::idle)}, fault_{0};
-    std::atomic<uint32_t> start_{0}, stop_{0}, heartbeat_{0}, delivered_{0}, safe_{0};
+    std::atomic<uint32_t> start_{0}, stop_{0}, heartbeat_{0}, delivered_{0}, accepted_{0}, safe_{0};
     // Producer-owned fields.
     uint64_t last_sample=0;
     bool have_sample=false;
@@ -48,6 +48,7 @@ public:
     PacketMetadata packet_metadata() const noexcept {return metadata;}
     PipelineState state() const noexcept {return PipelineState(state_.load(std::memory_order_acquire));}
     PipelineFault fault() const noexcept {return PipelineFault(fault_.load(std::memory_order_acquire));}
+    uint32_t accepted() const noexcept {return accepted_.load(std::memory_order_acquire);}
     uint32_t delivered() const noexcept {return delivered_.load(std::memory_order_acquire);}
     bool safe_acknowledged() const noexcept {return safe_.load(std::memory_order_acquire)!=0;}
     bool request_start() noexcept {
@@ -65,6 +66,7 @@ public:
         }
         if(have_sample && frame.sample<last_sample) {fail(PipelineFault::timestamp);return false;}
         if(!events.push(OutputEvent{frame,mask})) {fail(PipelineFault::overflow);return false;}
+        accepted_.fetch_add(1,std::memory_order_release);
         last_sample=frame.sample;have_sample=true;heartbeat();return true;
     }
     // One bounded backend call per tick. Caller supplies host-audio sample position

@@ -20,7 +20,7 @@ def run(args,timeout=120):
     subprocess.run(list(map(str,args)),check=True,timeout=timeout)
 flags=['-std=c++17','-O2','-UNDEBUG','-Wall','-Wextra','-Wpedantic','-Werror','-Iinclude','-pthread','-march=armv7-a','-mfpu=vfpv3-d16','-mfloat-abi=hard']
 if not args.existing_dir:
-    run([cxx,*flags,'-shared','-fPIC','-fvisibility=hidden','src/vst/plugin.cpp','src/capture.cpp','-o',out/'mpc_cv.so'])
+    run([cxx,*flags,'-shared','-fPIC','-Wl,--exclude-libs,ALL','-fvisibility=hidden','src/vst/plugin.cpp','src/capture.cpp','-o',out/'mpc_cv.so'])
     for name in ['core_test','backend_test','graph_test','event_pipeline_test','capture_test','vst_host_test','vst_capture_test','rt_test','scene_io_test','vst_capture_demo']:
         sources=[f'tests/{name}.cpp'] if name!='vst_capture_demo' else ['src/vst_capture_demo.cpp']
         if name=='rt_test':sources.extend(['src/vst/plugin.cpp','src/capture.cpp'])

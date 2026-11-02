@@ -118,7 +118,7 @@ CaptureStatus CaptureCoordinator::status_locked(const CaptureSession& session) c
     status.mask=session.reserved;status.owner=session.owner;status.delivered=session.pipeline.delivered();
     status.safe_acknowledged=session.pipeline.safe_acknowledged()?1u:0u;
     status.history_count=uint32_t(session.record_count);status.history_overwritten=session.overwritten;
-    status.active_sessions=uint32_t(count);return status;
+    status.active_sessions=uint32_t(count);status.accepted=session.pipeline.accepted();return status;
 }
 CaptureStatus CaptureCoordinator::status(const CaptureSession& session) {
     std::lock_guard<std::mutex> lock(registry);return status_locked(session);

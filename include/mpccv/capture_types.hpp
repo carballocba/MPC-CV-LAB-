@@ -6,8 +6,8 @@ constexpr size_t capture_history_size=512;
 enum class CaptureResult:int32_t { ok=1, invalid=0, conflict=-1, busy=-2, unavailable=-3 };
 // Native diagnostic ABI only, never a hardware acknowledgement.
 struct CaptureStatus {
-    uint32_t version=1, state=0, fault=0, mask=0, owner=0, delivered=0;
-    uint32_t safe_acknowledged=0, history_count=0, history_overwritten=0, active_sessions=0;
+    uint32_t version=2, state=0, fault=0, mask=0, owner=0, delivered=0;
+    uint32_t safe_acknowledged=0, history_count=0, history_overwritten=0, active_sessions=0, accepted=0;
 };
 struct CaptureRecord {
     uint64_t sample=0;

@@ -5,6 +5,7 @@
 #include "mpccv/scene.hpp"
 #include <cassert>
 #include <chrono>
+#include <cstdio>
 #include <dlfcn.h>
 #include <thread>
 using namespace mpccv;
@@ -39,6 +40,7 @@ int main(int argc,char** argv) {
     auto* a=entry(host);auto* b=entry(host);assert(a && b);
     CaptureStatus snapshot;assert(!start(nullptr,1));assert(!start(a,256));
     assert(status(a,&snapshot) && snapshot.state==0 && snapshot.mask==0);
+    std::fprintf(stderr,"capture-test: initial sessions\n");
     setup(a,0);setup(b,7);
     assert(start(a,1)==1);assert(start(b,1)==-1);assert(start(b,128)==1);
     assert(status(a,&snapshot) && snapshot.active_sessions==2);
@@ -62,6 +64,7 @@ int main(int argc,char** argv) {
     count=copy(a,records.data(),uint32_t(records.size()));assert(count==4 && records[3].role==2);
     assert(records[3].bytes[2]==0 && records[3].bytes[5]==0);
     assert(stop(b,&snapshot)==1 && snapshot.safe_acknowledged && snapshot.active_sessions==0);
+    std::fprintf(stderr,"capture-test: simultaneous stop/render\n");
     // Default path stays inert. Capture starts only by explicit control API and is not preset state.
     assert(start(a,1)==1);a->setParameter(a,0,1);
     std::thread audio([&] {
@@ -73,6 +76,7 @@ int main(int argc,char** argv) {
     });
     int result=stop(a,&snapshot);assert(result==1 || result==-2);
     audio.join();assert(stop(a,&snapshot)==1 && snapshot.safe_acknowledged);
+    std::fprintf(stderr,"capture-test: two render threads\n");
     // Two render threads have separate producers/graphs but share one capture worker.
     assert(start(a,1)==1);assert(start(b,128)==1);
     auto render=[&](Effect* e) {
@@ -81,14 +85,18 @@ int main(int argc,char** argv) {
     };
     std::thread a_audio(render,a),b_audio(render,b);a_audio.join();b_audio.join();
     // effClose must stop/join even if the client omitted explicit capture_stop.
+    std::fprintf(stderr,"capture-test: closing active instances\n");
     a->dispatcher(a,1,0,0,nullptr,0);b->dispatcher(b,1,0,0,nullptr,0);
+    std::fprintf(stderr,"capture-test: first dlclose\n");
     assert(dlclose(library)==0);
     // Repeated load, capture, implicit stop and unload leaves no worker using unloaded code.
     for(unsigned i=0;i<8;++i) {
+        std::fprintf(stderr,"capture-test: reload %u\n",i);
         library=dlopen(argv[1],RTLD_NOW);assert(library);
         entry=reinterpret_cast<Effect*(*)(Callback)>(dlsym(library,"VSTPluginMain"));
         start=reinterpret_cast<decltype(start)>(dlsym(library,"mpc_cv_capture_start"));
         auto* effect=entry(host);assert(effect);assert(start(effect,255)==1);
         effect->dispatcher(effect,1,0,0,nullptr,0);assert(dlclose(library)==0);
     }
+    std::fprintf(stderr,"capture-test: complete\n");
 }

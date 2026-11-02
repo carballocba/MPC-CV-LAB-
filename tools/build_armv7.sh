@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 mkdir -p build/armv7 build/zig-cache build/zig-global
 export ZIG_GLOBAL_CACHE_DIR="$PWD/build/zig-global"
 export ZIG_LOCAL_CACHE_DIR="$PWD/build/zig-cache"
-"$ZIG" c++ -target arm-linux-gnueabihf.2.31 -mcpu=cortex_a9 -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -shared -fPIC -fvisibility=hidden src/vst/plugin.cpp src/capture.cpp -o build/armv7/mpc_cv.so
+"$ZIG" c++ -target arm-linux-gnueabihf.2.31 -mcpu=cortex_a9 -std=c++17 -O2 -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -shared -fPIC -fvisibility=hidden -Wl,--exclude-libs,ALL src/vst/plugin.cpp src/capture.cpp -o build/armv7/mpc_cv.so
 for test_name in core_test backend_test graph_test event_pipeline_test capture_test vst_host_test vst_capture_test rt_test scene_io_test; do
     set -- "tests/$test_name.cpp"
     case "$test_name" in
