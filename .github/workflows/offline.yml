@@ -1,0 +1,34 @@
+name: Offline validation
+on:
+  pull_request:
+  push:
+    branches: [development/phase-0-consolidation]
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Native core, VST host, RT allocation guard and eight-output capture
+        run: make check
+      - name: ASan and UBSan
+        run: make -B check CXXFLAGS='-std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined'
+  linux-arm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Provision compiler, ARM sysroot and QEMU in ephemeral CI runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y g++-arm-linux-gnueabihf qemu-user
+          dpkg-query -W g++-arm-linux-gnueabihf libc6-armhf-cross libstdc++6-armhf-cross qemu-user
+      - name: Native Linux validation
+        run: make -B check
+      - name: ARMv7 Linux execution including dynamic VST host
+        run: python3 tools/run_armv7_qemu.py
+      - name: Build ARMv7 glibc 2.31 baseline with SHA-256-pinned Zig
+        run: ZIG="$(python3 tools/fetch_zig.py)" tools/build_armv7.sh
+      - name: Execute Zig-built ARM tests and dynamic VST under QEMU
+        run: python3 tools/run_armv7_qemu.py --existing-dir build/armv7

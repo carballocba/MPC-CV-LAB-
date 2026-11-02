@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-19",
+  "timezone": "Australia/Brisbane",
+  "native_compiler": "Apple clang version 16.0.0 (clang-1600.0.26.6)\nTarget: arm64-apple-darwin23.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "native": "PASS make -B check",
+  "asan_ubsan": "PASS make -B check with -fsanitize=address,undefined",
+  "tsan": "PASS core_test thread stress and dynamic VST host automation with both host/plugin instrumented",
+  "rt_allocation": "PASS 1000 callbacks at 1/128/2048 frames with parameter changes; C++ new/delete guard",
+  "capture": "PASS 1379 snapshots x eight logical outputs plus safe-zero packet",
+  "armv7_build": "PASS plugin and core/backend/graph test executables; Zig 0.15.2 target arm-linux-gnueabihf.2.31 cortex_a9",
+  "arm_runtime_qemu": "NOT RUN: qemu-arm and ARM runtime sysroot not provisioned",
+  "hardware": "NOT RUN; no device accessed",
+  "skin": "PASS generated native skin and geometry validation; seven offline previews for six tabs",
+  "ci": "Configured; remote run status is separate from local evidence",
+  "source_sha256": {
+    "include/mpccv/core.hpp": "4f187b515db32c3342b452d4871caee4a5b6a40b5c45f75ba04744e57d49c7bf",
+    "include/mpccv/backend.hpp": "350e59ffe837b17da82d7983e45243dbb1aaed133d417fed06d92ff4603e2725",
+    "include/mpccv/graph.hpp": "3c8377f51a4c6966b7f386b3bbfb0b209004edf5fdb7f7475af25566b5ee130e",
+    "include/mpccv/scene.hpp": "124d03d346eb96e2fdb1ab118158896dd2b7c520d98d3d4cc7926a2112c7f733",
+    "include/mpccv/vst/abi.hpp": "7dd7d58301a1af90a9849aa210e5218db912143e5d1c9f28aee4c13e29682e36",
+    "src/vst/plugin.cpp": "2c2fccd1730d1fc55ba595aba9ef6cba40e095a875333a77753cd0c2d9df68c3"
+  }
+}

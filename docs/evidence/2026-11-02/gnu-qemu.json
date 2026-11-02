@@ -1,0 +1,63 @@
+{
+  "host": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+  "compiler": "arm-linux-gnueabihf-g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "qemu": "qemu-arm version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+  "sysroot": "/usr/arm-linux-gnueabihf",
+  "cpu": "cortex-a9",
+  "tests": [
+    {
+      "test": "core_test",
+      "result": "PASS",
+      "seconds": 0.064
+    },
+    {
+      "test": "backend_test",
+      "result": "PASS",
+      "seconds": 0.032
+    },
+    {
+      "test": "graph_test",
+      "result": "PASS",
+      "seconds": 0.264
+    },
+    {
+      "test": "event_pipeline_test",
+      "result": "PASS",
+      "seconds": 0.064
+    },
+    {
+      "test": "capture_test",
+      "result": "PASS",
+      "seconds": 0.415
+    },
+    {
+      "test": "vst_host_test",
+      "result": "PASS",
+      "seconds": 0.415
+    },
+    {
+      "test": "vst_capture_test",
+      "result": "PASS",
+      "seconds": 0.164
+    },
+    {
+      "test": "rt_test",
+      "result": "PASS",
+      "seconds": 3.821
+    },
+    {
+      "test": "scene_io_test",
+      "result": "PASS",
+      "seconds": 0.064
+    },
+    {
+      "test": "vst_capture_demo",
+      "result": "PASS",
+      "seconds": 1.18
+    }
+  ],
+  "plugin_sha256": "157bed4023360e02f1da5765ba18ce7778ca075b5c44aa3eead823283f8b8833",
+  "limits": "QEMU user-mode and Ubuntu cross sysroot only; no Hakai, MPC, electrical or real-time deadline validation",
+  "code_commit": "9e5dbea4e84ad4d4410b5ae41b8c9a4f35edc6d3",
+  "ci_run": "https://github.com/carballocba/MPC-CV-LAB-/actions/runs/41394465495"
+}

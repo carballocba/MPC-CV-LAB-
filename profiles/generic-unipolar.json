@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "id": "generic.unipolar",
+  "name": "Generic configurable unipolar input",
+  "verification": "generic-template-not-device-measurement",
+  "inputs": [
+    {
+      "id": "cv", "label": "CV input", "signal_type": "continuous",
+      "polarity": "unipolar", "minimum_volts": 0.0, "maximum_volts": 5.0,
+      "threshold_volts": null, "scale": 1.0, "offset_volts": 0.0,
+      "default_virtual_source": null, "default_logical_output": null
+    }
+  ]
+}

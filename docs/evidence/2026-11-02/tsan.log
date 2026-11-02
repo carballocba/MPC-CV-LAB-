@@ -1,0 +1,14 @@
+capture-test: initial sessions
+capture-test: simultaneous stop/render
+capture-test: two render threads
+capture-test: closing active instances
+capture-test: first dlclose
+capture-test: reload 0
+capture-test: reload 1
+capture-test: reload 2
+capture-test: reload 3
+capture-test: reload 4
+capture-test: reload 5
+capture-test: reload 6
+capture-test: reload 7
+capture-test: complete

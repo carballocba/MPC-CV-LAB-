@@ -1,0 +1,35 @@
+mkdir -p build
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined src/simulate.cpp -o build/simulate
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/core_test.cpp -o build/core_test
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/backend_test.cpp -o build/backend_test
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/graph_test.cpp -o build/graph_test
+./build/core_test
+./build/backend_test
+./build/graph_test
+./build/simulate > build/demo.csv
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined -dynamiclib src/vst/plugin.cpp -o build/mpc_cv.so
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/vst_host_test.cpp  -o build/vst_host_test
+./build/vst_host_test ./build/mpc_cv.so
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/rt_test.cpp src/vst/plugin.cpp -o build/rt_test
+./build/rt_test
+python3 tools/validate_assets.py
+PASS: generic profile, preset fixture, 52 parameters, six pages and Q-Link bindings
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined src/lab_simulate.cpp -o build/lab_simulate
+./build/lab_simulate build/eight-outputs.csv build/capture.bin
+python3 tools/validate_capture.py
+PASS: 1379 eight-output snapshots and final safe-zero packet; all CC bytes match CSV
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/event_pipeline_test.cpp -o build/event_pipeline_test
+./build/event_pipeline_test
+clang++ -std=c++17 -O1 -g -Wall -Wextra -Wpedantic -Werror -Iinclude -pthread -fsanitize=address,undefined tests/scene_io_test.cpp -o build/scene_io_test
+python3 -m unittest discover -s tests -p 'test_scene_tools.py' -v
+test_atomic_invalid_cli (test_scene_tools.SceneTools.test_atomic_invalid_cli) ... ok
+test_bad_scene (test_scene_tools.SceneTools.test_bad_scene) ... ok
+test_corruption_and_truncation (test_scene_tools.SceneTools.test_corruption_and_truncation) ... ok
+test_empty_scene (test_scene_tools.SceneTools.test_empty_scene) ... ok
+test_preset_and_routes (test_scene_tools.SceneTools.test_preset_and_routes) ... ok
+test_roundtrip_cpp (test_scene_tools.SceneTools.test_roundtrip_cpp) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.388s
+
+OK

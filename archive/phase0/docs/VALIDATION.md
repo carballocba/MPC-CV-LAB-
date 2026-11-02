@@ -1,0 +1,11 @@
+# Validation and remaining gates
+
+Run `make test` with Apple clang++ (C++17). Test code uses assertions; do not compile with NDEBUG. `make test` builds with warnings as errors and produces `build/demo.csv` for four seconds at 120 BPM, 44.1 kHz, 128-frame snapshots.
+
+Implemented checks: all eight channels and all 16384 code values round-trip; 2 V conversion and clamps/nonfinite inputs; transactional conflict rejection and stale-owner release; queue empty/full/wrap and 100000 ordered frames across two threads; default disarm, stop, invalid transport and four/eight enable masks; deterministic random hold; scripted zero, error and five-byte partial writes preserve a complete 48-byte stream.
+
+ASan/UBSan execution is also available with the compiler command recorded in `build/validation.txt`. Sanitizers do not prove real-time behavior. No physical outputs, Linux rawmidi, VST host, ARM execution or end-to-end worker pipeline are tested. Tests do not demonstrate electrical safety, pitch accuracy, gate edge retention or firmware compatibility.
+
+Future offline acceptance work: timestamped gate scheduler with narrow pulse/overflow tests; loop straddle, fast tempo reversal and locate fixtures; bounded coordinator shutdown/reconnect; exact discovery with ambiguous/reused fd fixtures; per-instance lifecycle stress; state corruption and migration; VST host harness; ARM lock-free and ABI checks. Fault injection must cover EIO, EINTR, EAGAIN, zero/short writes, missing ports, stalled callbacks and worker startup failure.
+
+Later hardware validation (requires a separate user-authorized device phase): identify exact MPC One/Hakai versions and controller; confirm logical-to-connector/tip/ring map; inspect native CV traffic; compare protocol without connected modules; measure 0/1/2/3/4/5 V, monotonicity, settling and calibration with suitable instruments; scope gate widths, jitter and latency under eight-lane load; test native track conflicts, stop/mute/suspend, reopen and unload; measure update ceiling and failure recovery. Repeat for Hakai 3.9 and 3.9.1. Keep all hardware profiles unverified until evidence is recorded. No device commands or deployment scripts are provided by MPC-CV.

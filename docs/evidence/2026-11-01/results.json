@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-01",
+  "timezone": "Australia/Brisbane",
+  "code_commit": "d4fd855237a669cf3f5df01f01736c3551d58d92",
+  "native": "PASS make -B check including 6 Python scene-tool tests",
+  "asan_ubsan": "PASS full make -B check with address,undefined",
+  "tsan": "PASS event pipeline producer/worker stress and VST parameter, enable switches and concurrent chunk producers",
+  "rt_guard": "PASS no C++ new/delete in render and event publish path; not a hardware deadline guarantee",
+  "arm_gnu_qemu": "PASS 7 tests including dynamically loaded VST, RT guard and Python/C++ scene binary roundtrip",
+  "arm_zig_qemu": "PASS same 7 tests, Zig 0.15.2 target arm-linux-gnueabihf.2.31",
+  "skin": "PASS 52 parameter native skin generation/geometry checks and visual overview preview",
+  "hardware": "NOT RUN; no physical backend, device access, installation or service restart",
+  "source_sha256": {
+    "include/mpccv/core.hpp": "4f187b515db32c3342b452d4871caee4a5b6a40b5c45f75ba04744e57d49c7bf",
+    "include/mpccv/backend.hpp": "7d6ed049441de3e07edf4ec14dd6ee65678ab5bd7e73aef13782b1c4b1092e1b",
+    "include/mpccv/event_pipeline.hpp": "bdb7b5e119ac520925fb281d9aad08fdbe45f3b65b77e985121f087aa62c6e0b",
+    "include/mpccv/graph.hpp": "3c8377f51a4c6966b7f386b3bbfb0b209004edf5fdb7f7475af25566b5ee130e",
+    "include/mpccv/scene.hpp": "124d03d346eb96e2fdb1ab118158896dd2b7c520d98d3d4cc7926a2112c7f733",
+    "include/mpccv/vst/abi.hpp": "cc289cb9f06b94d8051775e2a8c58e4ac950d035b7b57df94ecc76b954f8dcfb",
+    "src/vst/plugin.cpp": "6ed66cda0b3318b3cea8f9551f7615089159a60d2fafb22cbc144cbf636e5b33",
+    "tools/scene_tool.py": "81a23b058986d8ec35be1529e05e1bce31337e11367d29ee83c622da0201cf0e"
+  }
+}
