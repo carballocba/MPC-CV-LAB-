@@ -4,8 +4,8 @@
 
 namespace mpccv {
 namespace {
-// Some no-SDK Zig shared builds provide a null __dso_handle and no CRT fini
-// hook. Do not register an unloadable function-local C++ static with atexit.
+// Some no-SDK shared builds omit CRT fini glue for __cxa_atexit.
+// Use module ownership instead of a process-exit callback into unloaded code.
 // These C-initialized globals have no automatic C++ destructor registration.
 pthread_mutex_t creation_mutex=PTHREAD_MUTEX_INITIALIZER;
 CaptureCoordinator* module_coordinator=nullptr;
