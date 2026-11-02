@@ -1,12 +1,13 @@
 #include "mpccv/capture.hpp"
-#include <chrono>
+#include <time.h>
 #include <limits>
-#include <system_error>
 
 namespace mpccv {
 namespace {
 uint64_t now_ms() noexcept {
-    return uint64_t(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count());
+    timespec time{};
+    if(clock_gettime(CLOCK_MONOTONIC,&time)!=0)return std::numeric_limits<uint64_t>::max();
+    return uint64_t(time.tv_sec)*1000+uint64_t(time.tv_nsec)/1000000;
 }
 }
 IoResult CaptureSession::Sink::write(const uint8_t* bytes,size_t size) noexcept {
@@ -48,7 +49,7 @@ void CaptureSession::levels(const Frame& frame,uint8_t gate_mask) noexcept {
 CaptureCoordinator& capture_coordinator() {static CaptureCoordinator coordinator;return coordinator;}
 CaptureCoordinator::~CaptureCoordinator() {
     quit.store(1);
-    if(worker.joinable())worker.join();
+    if(worker_running)pthread_join(worker,nullptr);
 }
 CaptureResult CaptureCoordinator::attach(CaptureSession& session) {
     std::lock_guard<std::mutex> life(lifecycle);
@@ -62,15 +63,21 @@ CaptureResult CaptureCoordinator::attach(CaptureSession& session) {
     // Capture sink completes immediately. No worker/producer has this session yet.
     session.pipeline.tick(session.sink,std::numeric_limits<uint64_t>::max(),now_ms());
     if(session.pipeline.state()!=PipelineState::active)return CaptureResult::unavailable;
-    if(!worker.joinable()) {
+    if(worker_running && quit.load())return CaptureResult::unavailable;
+    if(!worker_running) {
         quit.store(0);
-        try {worker=std::thread([this]{loop();});}
-        catch(...) {
+        // Keep thread ownership explicit and avoid an unloadable static C++
+        // thread runtime registering process-exit callbacks in the host.
+        int error=pthread_create(&worker,nullptr,[](void* context)->void* {
+            static_cast<CaptureCoordinator*>(context)->loop();return nullptr;
+        },this);
+        if(error) {
             leases.drain(token);session.pipeline.request_stop();
             session.pipeline.tick(session.sink,std::numeric_limits<uint64_t>::max(),now_ms());
             if(session.pipeline.safe_acknowledged())leases.acknowledge(token,session.reserved);
             return CaptureResult::unavailable;
         }
+        worker_running=true;
     }
     for(auto& slot:slots)if(!slot) {slot=&session;++count;break;}
     return CaptureResult::ok;
@@ -93,7 +100,10 @@ CaptureResult CaptureCoordinator::detach(CaptureSession& session) {
         *found=nullptr;--count;
         if(!count) {quit.store(1);join=true;}
     }
-    if(join && worker.joinable())worker.join();
+    if(join && worker_running) {
+        if(pthread_join(worker,nullptr)!=0)return CaptureResult::unavailable;
+        worker_running=false;
+    }
     return CaptureResult::ok;
 }
 void CaptureCoordinator::loop() noexcept {
@@ -110,7 +120,7 @@ void CaptureCoordinator::loop() noexcept {
         }
         // No wake syscall from audio. This delay only paces the capture worker;
         // logical timestamps are preserved, not scheduled as electrical pulses.
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        timespec delay{0,1000000};nanosleep(&delay,nullptr);
     }
 }
 CaptureStatus CaptureCoordinator::status_locked(const CaptureSession& session) const noexcept {

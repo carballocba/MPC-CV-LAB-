@@ -3,7 +3,7 @@
 #include "capture_types.hpp"
 #include <memory>
 #include <mutex>
-#include <thread>
+#include <pthread.h>
 
 namespace mpccv {
 class CaptureSession {
@@ -35,7 +35,8 @@ class CaptureCoordinator {
     std::mutex lifecycle,registry;
     std::array<CaptureSession*,outputs> slots{};
     Leases leases;
-    std::thread worker;
+    pthread_t worker{};
+    bool worker_running=false;
     std::atomic<uint32_t> quit{0};
     uint32_t next_owner=1;
     size_t count=0;
