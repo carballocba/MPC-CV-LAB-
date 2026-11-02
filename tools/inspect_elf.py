@@ -21,6 +21,8 @@ for offset in range(sym[4],sym[4]+sym[5],sym[9]):
     name,value,size,info,other,section=struct.unpack_from('<IIIBBH',b,offset)
     if name and section and info>>4 in (1,2):exports.append(string(symstrings,name))
 assert 'VSTPluginMain' in exports
+has_fini='.fini_array' in byname and byname['.fini_array'][5]>=4
+if 'mpc_cv_capture_start' in exports:assert has_fini,'capture module needs explicit unload finalizer'
 versions=[]
 ver=byname.get('.gnu.version_r')
 if ver:
@@ -33,4 +35,4 @@ if ver:
             versions.append(string(strings,name));a+=next_aux
         if not next_record:break
         cursor+=next_record
-print(json.dumps({'file':str(p),'sha256':hashlib.sha256(b).hexdigest(),'class':'ELF32','machine':'ARM','eabi':flags>>24,'hard_float':bool(flags&0x400),'needed':needed,'symbol_versions':sorted(set(versions)),'entry_exported':'VSTPluginMain' in exports,'telemetry_exported':'mpc_cv_read_telemetry' in exports,'capture_api_exported':all(name in exports for name in ['mpc_cv_capture_start','mpc_cv_capture_stop','mpc_cv_capture_status','mpc_cv_capture_copy'])},indent=2))
+print(json.dumps({'file':str(p),'sha256':hashlib.sha256(b).hexdigest(),'class':'ELF32','machine':'ARM','eabi':flags>>24,'hard_float':bool(flags&0x400),'needed':needed,'symbol_versions':sorted(set(versions)),'module_finalizer':has_fini,'entry_exported':'VSTPluginMain' in exports,'telemetry_exported':'mpc_cv_read_telemetry' in exports,'capture_api_exported':all(name in exports for name in ['mpc_cv_capture_start','mpc_cv_capture_stop','mpc_cv_capture_status','mpc_cv_capture_copy'])},indent=2))

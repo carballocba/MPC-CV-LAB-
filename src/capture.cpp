@@ -4,6 +4,14 @@
 
 namespace mpccv {
 namespace {
+// Some no-SDK Zig shared builds provide a null __dso_handle and no CRT fini
+// hook. Do not register an unloadable function-local C++ static with atexit.
+// These C-initialized globals have no automatic C++ destructor registration.
+pthread_mutex_t creation_mutex=PTHREAD_MUTEX_INITIALIZER;
+CaptureCoordinator* module_coordinator=nullptr;
+__attribute__((destructor)) void release_capture_module() noexcept {
+    delete module_coordinator;module_coordinator=nullptr;
+}
 uint64_t now_ms() noexcept {
     timespec time{};
     if(clock_gettime(CLOCK_MONOTONIC,&time)!=0)return std::numeric_limits<uint64_t>::max();
@@ -46,7 +54,15 @@ void CaptureSession::levels(const Frame& frame,uint8_t gate_mask) noexcept {
         if((reserved&(1u<<j)) && !(gate_mask&(1u<<j)) && frame.values[j]!=last_sent[j])changed|=1u<<j;
     publish(frame,changed);
 }
-CaptureCoordinator& capture_coordinator() {static CaptureCoordinator coordinator;return coordinator;}
+CaptureCoordinator& capture_coordinator() {
+    pthread_mutex_lock(&creation_mutex);
+    try {
+        if(!module_coordinator)module_coordinator=new CaptureCoordinator;
+    } catch(...) {pthread_mutex_unlock(&creation_mutex);throw;}
+    auto* result=module_coordinator;
+    pthread_mutex_unlock(&creation_mutex);
+    return *result;
+}
 CaptureCoordinator::~CaptureCoordinator() {
     quit.store(1);
     if(worker_running)pthread_join(worker,nullptr);
@@ -54,6 +70,7 @@ CaptureCoordinator::~CaptureCoordinator() {
 CaptureResult CaptureCoordinator::attach(CaptureSession& session) {
     std::lock_guard<std::mutex> life(lifecycle);
     std::lock_guard<std::mutex> lock(registry);
+    if(worker_running && quit.load())return CaptureResult::unavailable;
     if(session.owner || session.pipeline.state()!=PipelineState::idle || session.pipeline.fault()!=PipelineFault::none)return CaptureResult::invalid;
     if(!session.reserved || !next_owner || count==slots.size())return CaptureResult::unavailable;
     auto token=next_owner++; // Never reuse a token after uint32 wrap.
@@ -63,7 +80,6 @@ CaptureResult CaptureCoordinator::attach(CaptureSession& session) {
     // Capture sink completes immediately. No worker/producer has this session yet.
     session.pipeline.tick(session.sink,std::numeric_limits<uint64_t>::max(),now_ms());
     if(session.pipeline.state()!=PipelineState::active)return CaptureResult::unavailable;
-    if(worker_running && quit.load())return CaptureResult::unavailable;
     if(!worker_running) {
         quit.store(0);
         // Keep thread ownership explicit and avoid an unloadable static C++
