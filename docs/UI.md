@@ -17,3 +17,5 @@ In this workspace Pillow is isolated under `build/python`; use `PYTHONPATH="$PWD
 Scene control mappings are stored as future assignment metadata. Current Q-Link maps come from the skin and are not dynamically replaced by scene loading. Scene morphing, destination-specific device browsers, MIDI note envelopes and a physical backend remain pending.
 
 Offline scene/preset authoring is now available in `SCENE_FORMAT.md`; that does not turn the SCENES page into a file browser. Preview images show static artwork and may draw switches off until the host supplies live values; default-on behavior is verified through the VST host tests.
+
+The 2 November capture API is diagnostic and opt-in; it adds no VST parameter or skin control. Existing screen fault/voltage parameters describe graph telemetry; capture worker status/history are queried separately by laboratory clients. This is not a capture activation button or a physical output meter.

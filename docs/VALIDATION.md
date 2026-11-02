@@ -1,6 +1,6 @@
 # Validation
 
-**Current:** [1 November 2026 update](PROGRESS_2026-11-01.md) and `evidence/2026-11-01/` supersede the historical ARM/QEMU block below. GNU and Zig ARM execution now pass in CI, including the dynamic VST host.
+**Current:** [2 November 2026 capture integration](PROGRESS_2026-11-02.md) and `evidence/2026-11-02/` supersede the historical ARM/QEMU block below. GNU and Zig ARM execution now pass in CI, including the dynamic VST host.
 
 ## Historical baseline — 19 October 2026
 

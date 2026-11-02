@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-02",
+  "timezone": "Australia/Brisbane",
+  "code_commit": "9e5dbea4e84ad4d4410b5ae41b8c9a4f35edc6d3",
+  "native": "PASS make -B check including integrated VST capture and six JSON tool tests",
+  "asan_ubsan": "PASS full make -B check with address,undefined",
+  "tsan": "PASS tools/run_tsan.sh: core/event queue, capture registry, VST automation/chunks and concurrent stop/render/unload tests",
+  "rt_allocation": "PASS integrated capture started outside guard; render/publish call no C++ new/delete under guard. Not a universal libc or deadline proof.",
+  "arm_gnu_qemu": "PASS 10 checks including full VST capture demo and normal process exit",
+  "arm_zig_qemu": "PASS 10 checks including repeated dlopen/dlclose and process exit; explicit module finalizer present",
+  "capture_trace": "PASS 1446 contiguous delivered packets, eight outputs, 64 logical gate edges, priming/closing zeros; 934 bounded history overwrites already read by collector",
+  "installation": "HELD by user; no MPC access/installation or Community Installer modification",
+  "hardware": "NOT RUN; physical backend absent; capture is in memory and not electrically paced",
+  "source_sha256": {
+    "include/mpccv/capture.hpp": "909530d327151c4222bfbfd25e3f5cfbab3ae46297739f2218a24aa44f15223f",
+    "include/mpccv/capture_types.hpp": "8dde22f4b14f3b540b34cbe4826bcc1cdfdbef38c830f159c41ccc90cb5b953b",
+    "include/mpccv/event_pipeline.hpp": "2008c0ca1ec2d406ecfd565740515b3aee4afc32bad3f20d47b9dd7c25c0321e",
+    "include/mpccv/vst/abi.hpp": "a3fc4a2fc7547230ab40db86b12ac2beff7887545f80b465c02c5e697e838181",
+    "include/mpccv/vst/capture_api.hpp": "d63c9f9fac420defcf9d256b40b466129548252c069d5cbabbbf35b417d12cb7",
+    "src/capture.cpp": "e810ebf1e40ec418ed961fe33047d28320a80c64a28f5337f15bc2982a7470fd",
+    "src/vst/plugin.cpp": "eafaa7946636c305d9816c78acb455580878c5a9b1a74c1cf6b02658449c4ff8",
+    "src/vst_capture_demo.cpp": "94324e09e35904636d06fa3f0c8c785e101116d8d31668c99825a9f94aa2fa77",
+    "tests/capture_test.cpp": "b1b686921dde27d33d679e2ffd0eae2103eb1f6354b45f4294533994b4e967dd",
+    "tests/vst_capture_test.cpp": "b65c1c454df9d12767c69fd3807e1e213205f639b20739225e6fa6dc3fc1f882"
+  }
+}

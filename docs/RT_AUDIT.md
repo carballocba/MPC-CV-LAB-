@@ -25,3 +25,11 @@ The allocation guard now covers EventPipeline::publish as well as render. Produc
 TSan passes real producer/worker stress, concurrent parameter/enable-switch updates and concurrent chunk producers. GCC ARM strict warnings were fixed without suppressions. Both GNU and Zig binaries run the RT allocation guard under QEMU. This improves portability evidence, not worst-case latency proof: atomic LL/SC retries, host callbacks, math implementations and scheduling still need hardware measurement.
 
 Scene load uses a pending barrier; only processing applies the complete accepted scene's parameters. It processes one queued scene per block and remains disarmed while earlier accepted scenes are pending. Multi-parameter automation stays nontransactional. getChunk's returned buffer must be copied by the host before another getChunk request; the control mutex does not extend the pointer lifetime outside the call.
+
+## 2 November capture integration
+
+The opt-in capture path now runs inside render: one pointer/read-count guard, heartbeat, fixed-size gate event copies and one block-end continuous snapshot. Capture start/stop/status/history calls are control-only and may lock/create/join; they are not exposed as audio automation operations. A null capture port is the default fast path. Worker registry locks, monotonic clock and nanosleep remain off audio.
+
+Concurrent capture stop first removes the pointer and returns Busy until readers quiesce; it never deletes a live callback's session. Full plugin destruction is not supported concurrently with audio/control calls. One producer per Effect remains required, including when several Effect instances run in parallel. The coordinator/leases cover this module's capture sessions only. Physical endpoints and host writers are outside that contract.
+
+The RT allocation guard exercises the integrated path after starting capture outside its guard. Positive tests include eight control threads, two audio threads in separate instances, live capture stop, restart after last worker join and repeated dlopen/dlclose/process exit. Zero-frame callbacks are now no-op; invalid block sizes fault before unbounded buffer work. Root unload failure was caught in Zig/ARM and fixed with explicit module lifetime, not by suppressing the test.

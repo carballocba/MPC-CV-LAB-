@@ -13,3 +13,7 @@ Zig 0.15.2 is downloaded from the official distribution and unpacked temporarily
 ## November tooling update
 
 New JSON authoring/validation and CI evidence extraction use Python standard library only. QEMU and GNU cross/sysroot packages are installed only in ephemeral Linux CI; their executables/libraries are not vendored, committed or released. Passing against that sysroot is not a firmware dependency audit. Official Zig 0.15.2 archives for Linux x86_64 and macOS arm64 are SHA-256 pinned in fetch_zig.py, extracted only under ignored build/toolchains. GNU and Zig runtime redistribution questions remain a release gate; no license was assigned silently to the new project files.
+
+## 2 November coordinator update
+
+The capture registry, queue integration, POSIX worker ownership, diagnostic ABI and trace validator are independently authored project code. No new third-party implementation or installer dependency was added. Static-runtime symbol binding and explicit module finalization change linking/lifecycle, not runtime redistribution rights; Zig/libc++ notices remain a release-packaging gate. No source from the Community Installer is incorporated or modified.

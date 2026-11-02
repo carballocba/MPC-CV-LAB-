@@ -4,7 +4,7 @@
 
 The independent C++17 core has no physical-device dependency. `core.hpp` retains the original eight-output generator API, candidate protocol codec and bounded SPSC queue. `graph.hpp` adds a compiled DAG of at most 16 virtual nodes, separately routed to eight logical outputs. `backend.hpp` supplies the abstract byte transport, bounded capture backend, partial-write state machine, offline sender lifecycle and quarantined ownership model. Nothing depends on a named Eurorack module.
 
-The VST path is `host time/atomic parameters -> Graph -> simulated levels/atomic telemetry`. The offline lab path adds `Frame -> OutputService -> ReliablePacket -> CaptureBackend -> file written by offline main`. The VST does not instantiate a device sender or export MIDI events to MPC. A captured CC packet is not physical output.
+The VST path is `host time/atomic parameters -> Graph -> simulated levels/atomic telemetry`. The offline lab path adds `Frame -> OutputService -> ReliablePacket -> CaptureBackend -> file written by offline main`. The VST can explicitly instantiate an in-memory capture session and shared worker, but contains no device sender and exports no host MIDI events. A captured CC packet is not physical output.
 
 ## Engine contract and modulation matrix
 
@@ -12,7 +12,7 @@ A virtual `Node` declares kind, two dependency IDs, rate, scale, offset, modulat
 
 `compile` validates all values, resolves a deterministic topological order and rejects cycles, unknown kinds and references. `modulator` can alter source rate; mix combines an input with a scaled second dependency. Dedicated slew/quantizer nodes process virtual signals. Routes select a source with scale/offset and a 0–5 V interval; negative scale implements inversion/attenuation. One source can feed multiple outputs. Feedback cycles currently fail rather than inserting implicit delay. An explicit delay node and safe feedback policy remain future work.
 
-Each sample derives source phase from PPQ. Stateful slew advances by sample period; stopped/invalid/disarmed processing clears its memory. Internal signals are bounded at ±100, physical candidate conversion is clamped at 16383 after rounding. The near-5 V overflow discovered by end-to-end simulation has a regression test. Graph evaluation preserves narrow logical gate transitions, and the separately tested EventPipeline retains timestamped edges without coalescing. Wiring that queue into the VST/physical coordinator is still pending.
+Each sample derives source phase from PPQ. Stateful slew advances by sample period; stopped/invalid/disarmed processing clears its memory. Internal signals are bounded at ±100, physical candidate conversion is clamped at 16383 after rounding. The near-5 V overflow discovered by end-to-end simulation has a regression test. Graph evaluation preserves narrow logical gate transitions, and the separately tested EventPipeline retains timestamped edges without coalescing. It is now wired into the VST capture coordinator; physical endpoint integration and explicit transformed-signal roles remain pending.
 
 ## Host, control and UI
 
@@ -50,4 +50,10 @@ The minimal ABI declarations carry upstream MIT attribution. No SDK, upstream DS
 
 Stop/fault discards events not yet sent, completes an in-flight CC packet to preserve byte framing, then attempts safe zeros. One bounded backend call occurs per worker tick. EAGAIN/zero writes preserve cursor; fatal/disconnect, backward clock and deadline failure quarantine the single-use session. A heartbeat deadline detects a stalled producer. Safe acknowledgement means backend byte acceptance only; failure does not falsely acknowledge zero. Caller must keep ticking and provide a nonblocking backend; this is not a production thread or a guarantee after process death. Reconnect needs a new quiesced session and renewed reservations.
 
-The pipeline, ownership model and VST remain separate at this checkpoint. No discovery/syscall backend or shared coordinator is hidden in the queue. See the November report and RT audit for tested limits.
+As of 2 November the VST, pipeline and leases are integrated through an optional capture coordinator. That coordinator has a bounded in-memory sink only; no device-discovery/syscall backend is hidden in it. See the November report and RT audit for tested limits.
+
+## Optional capture integration — 2 November
+
+`CapturePort` defaults to null and creates no worker during ordinary plugin construction. Explicit diagnostic start reserves a fixed nonzero logical mask. `CaptureCoordinator` owns at most eight slots and one POSIX worker, serializes registry/lifecycle changes off audio, primes zeros and publishes a session pointer only after priming. Audio uses a lock-free reader guard, preserving memory until stop can complete. Stop can return Busy; effClose still requires a quiescent host. Archived records survive capture stop until next successful start or plugin destruction.
+
+Direct Gate routes publish changed values per sample; continuous routes publish changed values per block. The worker drains logical events into memory as fast as available, not against an electrical clock. A ring of 512 records reports overwrites; sequence checks and accepted-event counters allow the offline host to obtain a complete CSV with bounded batches. Module cleanup is explicit `.fini_array` ownership, avoiding a process-lifetime destructor pointing into an unloaded Zig shared object. See CAPTURE_API.md for API v2 layout, scope and constraints.

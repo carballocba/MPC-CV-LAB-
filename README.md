@@ -4,9 +4,15 @@ Plataforma modular de modulación CV/Gate para **Akai MPC One con Hakai**, desar
 
 **Estado: laboratorio offline. El plugin genera silencio y valores CV simulados. No contiene backend físico, no está instalado y no se ha probado en MPC.**
 
-## Avance del 1 de noviembre de 2026
+## Avance del 2 de noviembre de 2026
 
-**ARM/QEMU ya pasó:** siete pruebas, incluidos el VST cargado dinámicamente y escenas Python/C++, con toolchains GNU y Zig. También se añadieron una FIFO de gates con timestamps y watchdog, aplicación coherente de escenas y ocho interruptores de salida en Overview. El pipeline aún es independiente del VST y no accede a hardware.
+El pipeline ya está integrado al VST mediante **captura opcional en memoria**, con reservas por instancia, worker compartido y cierre probado. La demo carga el plugin real y valida una traza completa de ocho salidas, gates por sample y ceros finales. No se usa ni modifica el Community Installer; la instalación y prueba MPC siguen detenidas.
+
+Ver [informe actual](docs/PROGRESS_2026-11-02.md), [API/demo de captura](docs/CAPTURE_API.md) y la evidencia de esta fecha.
+
+## Avance anterior — 1 de noviembre de 2026
+
+**ARM/QEMU ya pasó:** siete pruebas, incluidos el VST cargado dinámicamente y escenas Python/C++, con toolchains GNU y Zig. También se añadieron una FIFO de gates con timestamps y watchdog, aplicación coherente de escenas y ocho interruptores de salida en Overview. Ese checkpoint tenía el pipeline separado; el avance del 2 de noviembre integra la captura y mantiene el hardware inaccesible.
 
 Ver [informe actual y evidencia](docs/PROGRESS_2026-11-01.md).
 
@@ -26,7 +32,7 @@ No se implementaron todas las familias futuras de motores. ADSR/AD/AR, Euclidean
 
 `Host MPC → adaptador VST2 → grafo de señales virtuales → rutas y límites → valores simulados / telemetría`
 
-El simulador offline conecta además el grafo al servicio de captura de CC. La FIFO de flancos gate con timestamps está implementada y probada por separado. Su integración en el VST/coordinator y el backend MPC Private siguen pendientes. No hay dependencia de módulos Eurorack concretos ni del DSP de Glass Spheres.
+El simulador offline conecta además el grafo al servicio de captura de CC. La FIFO de flancos gate con timestamps está implementada y probada por separado. Su integración VST/coordinator de captura está implementada; el backend MPC Private sigue ausente. La captura se activa sólo por la API del laboratorio y no se guarda armada en escenas. No hay dependencia de módulos Eurorack concretos ni del DSP de Glass Spheres.
 
 Engine Preset configura un motor; Device Profile describe entradas de un módulo externo; Performance Scene conserva grafo, parámetros, rutas, máscara y metadatos de sincronización/control. La carga valida todo antes de aplicarlo y desarma la simulación. Cambiar parámetros puede reiniciar estados de slew; no se promete transición continua.
 
@@ -55,7 +61,9 @@ El protocolo candidato usa canal MIDI 16 y pares CC 0/1 hasta 14/15, 14 bits y r
 
 ## Documentación
 
-- [Estado actual y pruebas ARM/QEMU](docs/PROGRESS_2026-11-01.md)
+- [Estado actual e integración de captura](docs/PROGRESS_2026-11-02.md)
+- [API y demo de captura](docs/CAPTURE_API.md)
+- [Historial del avance ARM/QEMU](docs/PROGRESS_2026-11-01.md)
 - [Autoría de escenas y presets JSON](docs/SCENE_FORMAT.md)
 - [Validación e historial](docs/VALIDATION.md)
 - [Arquitectura actual](docs/ARCHITECTURE.md)
@@ -69,10 +77,10 @@ El protocolo candidato usa canal MIDI 16 y pares CC 0/1 hasta 14/15, 14 bits y r
 
 ## Roadmap inmediato
 
-1. Integrar la FIFO de eventos y el coordinator de captura sin habilitar salidas físicas.
+1. Añadir roles explícitos de señal/perfiles y diagnóstico de captura en la interfaz, sin habilitar salidas físicas.
 2. Completar perfiles y navegador de escenas; la autoría de escenas/presets JSON ya funciona offline.
 3. Probar descubrimiento, reconexión, reservas multiinstancia y ciclo de vida del futuro worker con fixtures.
 4. Revisar licencias de runtime y empaquetado antes de distribuir binarios.
-5. Solicitar autorización separada para una prueba supervisada de una salida.
+5. Mantener la instalación detenida hasta resolver el Community Installer; una prueba física requerirá autorización separada.
 
 Repositorio oficial: https://github.com/carballocba/MPC-CV-LAB-. No se modifica `main` ni se instala nada en la MPC desde este laboratorio.
