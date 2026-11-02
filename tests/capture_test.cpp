@@ -7,6 +7,19 @@
 #include <thread>
 using namespace mpccv;
 int main() {
+    // First registry construction and last-worker join can come from different
+    // control threads. Each port has its own producer and private owner token.
+    std::array<CapturePort,8> ports;
+    std::array<CaptureResult,8> results{};
+    std::array<std::thread,8> controls;
+    for(unsigned i=0;i<8;++i)controls[i]=std::thread([&,i]{results[i]=ports[i].start(1u<<i);});
+    for(auto& thread:controls)thread.join();
+    for(auto result:results)assert(result==CaptureResult::ok);
+    assert(ports[0].status().active_sessions==8);
+    for(unsigned i=0;i<8;++i)controls[i]=std::thread([&,i]{results[i]=ports[i].stop();});
+    for(auto& thread:controls)thread.join();
+    for(auto result:results)assert(result==CaptureResult::ok);
+    assert(ports[0].status().active_sessions==0);
     CapturePort a,b;
     assert(a.start(0)==CaptureResult::invalid);
     assert(a.start(3)==CaptureResult::ok);
