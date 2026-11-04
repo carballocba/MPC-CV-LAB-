@@ -28,3 +28,11 @@ Carga en Akai, backend real, ocho salidas físicas, clock, gates, modulación y 
 El gestor G2 presente es `0.2.5-hddfix.2`, UID `4f4d4732`; poloq es `1.2.0`, UID `506c4d67`. Están registrados por separado y el arranque de Akai encontró ambos. El journal inspeccionado no contiene una reproducción del fallo de instalación. Se preservaron ambos.
 
 `tools/package_akai_candidate.sh` produce el ZIP local ARMv7 en formato portable Open MPC con UID `4d634376`, metadatos, skin y scripts generados por el framework revisado. Requiere el ELF ARMv7 compilado y Pillow para la skin. El ZIP pasó `unzip -t`. El registro y la eliminación se probaron sobre una copia efímera de la configuración actual: se agregó un solo plugin y el rollback dejó el archivo idéntico byte a byte. El archivo real quedó intacto. El paquete es local y conserva captura en memoria. El reinicio de la aplicación y la carga en un proyecto de prueba requieren que la sesión activa esté guardada.
+
+### Instalación en la unidad
+
+Con el proyecto guardado y el reinicio autorizado, el instalador portable registró el candidato en `/media/acvs-content/Synths`. En esta unidad `/sdcard/Synths` no existe y el destino seleccionado está en el almacenamiento ejecutable. `acvs` volvió a estado activo con un nuevo PID de MPC. El SHA-256 del ELF instalado coincide con el probado, y la entrada del UID aparece una vez. El journal confirma que ambos gestores siguieron presentes en el arranque.
+
+Backup del instalador en la unidad: `/media/az01-internal/Settings/MPC/MPC.settings.bak-mpc_cv-20261104-141131`. Para retirar el candidato, usar el rollback del mismo paquete, apuntando a la misma carpeta Synths y verificando que solo afecta su UID y su directorio. Conservar el backup como recuperación de la transacción. El rollback se probó sobre copia, no sobre la instalación activa.
+
+La instalación y el arranque de Akai están confirmados. Para verificar la carga efectiva, instanciar MPC-CV LAB en una pista Instrument de un proyecto de prueba y comprobar la interfaz y el mapeo de `mpc_cv.so` dentro del PID de MPC. El candidato instalado solo tiene captura en memoria.
