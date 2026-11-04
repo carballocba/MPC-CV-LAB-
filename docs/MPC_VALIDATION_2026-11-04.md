@@ -36,3 +36,7 @@ Con el proyecto guardado y el reinicio autorizado, el instalador portable regist
 Backup del instalador en la unidad: `/media/az01-internal/Settings/MPC/MPC.settings.bak-mpc_cv-20261104-141131`. Para retirar el candidato, usar el rollback del mismo paquete, apuntando a la misma carpeta Synths y verificando que solo afecta su UID y su directorio. Conservar el backup como recuperación de la transacción. El rollback se probó sobre copia, no sobre la instalación activa.
 
 La instalación y el arranque de Akai están confirmados. Para verificar la carga efectiva, instanciar MPC-CV LAB en una pista Instrument de un proyecto de prueba y comprobar la interfaz y el mapeo de `mpc_cv.so` dentro del PID de MPC. El candidato instalado solo tiene captura en memoria.
+
+### Carga efectiva en Akai confirmada
+
+El propietario instanció MPC-CV LAB y vio su interfaz. SSH confirmó `mpc_cv.so` mapeado dentro del proceso MPC (PID 20602), `acvs` activo y el SHA-256 esperado del ELF instalado. **PASS para carga e interfaz del candidato en esta unidad.** Estabilidad prolongada, persistencia en un proyecto real, rollback sobre la unidad y salidas eléctricas quedan pendientes.
