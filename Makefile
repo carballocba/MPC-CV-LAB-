@@ -61,6 +61,7 @@ build/scene_io_test: tests/scene_io_test.cpp $(HEADERS) | build
 	$(CXX) $(CXXFLAGS) $< -o $@
 scene-tools: build/scene_io_test
 	python3 -m unittest discover -s tests -p 'test_scene_tools.py' -v
+	python3 -m unittest discover -s tests -p 'test_cv_diagnostic.py' -v
 check: scene-tools
 
 build/capture_test: tests/capture_test.cpp src/capture.cpp $(HEADERS) | build

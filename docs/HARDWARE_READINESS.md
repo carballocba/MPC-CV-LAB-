@@ -1,6 +1,6 @@
 # Checkpoint F — preparation only
 
-Physical backend is absent. There is no installation script, rawmidi opener/writer, service command or MPC.settings editor in the new project. No step below was executed. Starting device work requires a separate authorization.
+Physical backend is absent. There is no installation script, rawmidi opener/writer, service command or MPC.settings editor in the new project. The owner authorized reversible device work on 4 November. See [device validation](MPC_VALIDATION_2026-11-04.md) for the isolated ARM test and [meter procedure](CV_MULTIMETER.md) for the electrical trial.
 
 ## Entry criteria for a later single-output trial
 
@@ -23,6 +23,6 @@ Hakai 3.9: not tested.
 MPC X: upstream protocol evidence only; MPC-CV not tested.
 MPC One cabling: four TRS connectors/eight signals documented by Akai. Four logical routes enabled initially; full breakout mapping/calibration unverified by this project.
 
-## Current installation hold
+## Installation and electrical trial
 
-On 2 November the user explicitly deferred all MPC installation until the VST Community Installer is repaired. This project does not modify or repair that installer. Capture/worker tests continue offline only; the hold is not waived by a successful build, QEMU execution or captured zero packet.
+The 4 November authorization supersedes the earlier installation hold. An isolated ARM smoke test passed. Registration in the Akai host is pending diagnosis of Community Installer and a reversible registration path. Physical emission requires confirmation that the outputs are disconnected from external modules and a validated backend.
